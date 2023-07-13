@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
 from .forms import SubirArchivoForm
+from .analisis import *
 
 
 
@@ -88,20 +89,41 @@ def logout_view(request):
 
 def subir_archivo(request):
     if request.method == "POST":#si viene POST, es porque viene el archivo
-        nombre_archivo = str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
+        nombre_archivo = './archivos/' + str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
         
-
-        #if not nombre_archivo.lower().endswith(".xlsx"): #si no termina en .xlsx
-        #    return HttpResponseRedirect("/informes/archivo_incorrecto.html") #redirige a este template
+        if not nombre_archivo.lower().endswith(".xlsx"): #si no termina en .xlsx
+            return HttpResponseRedirect("/informes/archivo_incorrecto.html") #redirige a este template
+           
             
         form = SubirArchivoForm(request.POST, request.FILES) #se trae la instancia del formulario
         
         instance = Archivo(file=request.FILES["file"]) #se instancia un objeto Archivo
+
+        #VALIDACIONES. Se le cargarán al sessions, para poder cargarlas al redirigir. Averiguar si existe una forma mejor.
+
         instance.save() #se guarda
-        return HttpResponseRedirect("/informes/subir_exito.html")
+        archivo_df = Validar(nombre_archivo)
+        context = {}
+        context['nombre'] = nombre_archivo
+        context['xlsx'] = archivo_df.xlsx()
+        context['comuna'] = archivo_df.comuna()
+        context['cesfam'] = archivo_df.cesfam()
+        context['formulario'] = archivo_df.formulario()
+        context['metacampos'] = archivo_df.metacampos()
+        context['situación'] = archivo_df.situación()
+        context['estado'] = archivo_df.estado()
+        context['rango_tiempo'] = archivo_df.rango_tiempo()
+        context['edad'] = archivo_df.edad()
+        context['sexo'] = archivo_df.sexo()
+        context['columnas'] = archivo_df.columnas()
+        print(context)
+       
+        return render(request,"informes/validaciones.html", context)
     else:
         form = SubirArchivoForm() #formulario vacío
     return render(request, "informes/subir.html", {"form": form})
 
-def subir_exito(request):
-    return render(request,"informes/subir_exito.html")
+def validaciones(request):
+   
+
+    return render(request,"informes/validaciones.html")

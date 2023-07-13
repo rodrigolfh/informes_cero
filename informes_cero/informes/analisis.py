@@ -1,6 +1,8 @@
 import pandas as pd
 from datetime import date
-
+import msoffcrypto
+import io
+"""
 registro=pd.read_excel('archivos/Informe_Formularios_RAYEN_4.xlsx', header=16) #los headers de las columnas comienzan en la fila 17
 
 registro.head() #las primeras 5 filas
@@ -13,6 +15,7 @@ diccionario = {'dato1' : 11}
 df = pd.DataFrame(diccionario, index = ["day1", "day2", "day3"]) #índices con nombres. esto se usa al pasar un dict a un dataframe.
 registro.loc["nombre de columna"] #serie por nombre de columna
 
+"""
 
 
 
@@ -167,17 +170,15 @@ preguntas = {
 
 # LISTO: CORROBORAR QUE EL ARCHIVO SEA XLSX (doble, antes de subir en el view y después de subir en la función 'xslx')
 # LISTO: Corroborar comuna
-# TODO: que tenga contraseña
-# CASI LISTO:  QUE TENGA EL NOMBRE DE UN CESFAM DE LA LISTA (PEDIRLE A CRISTIAN OTRAS PLANILLAS)
-# TODO: AJUSTAR NOMBRE DE ODONTOLOGO Y DE CESFAM A LOS DE LAS CHOICES
+
+# TODO:  QUE TENGA EL NOMBRE DE UN CESFAM DE LA LISTA (PEDIRLE A CRISTIAN OTRAS PLANILLAS)
+
 # LISTO: FECHA HASTA - DESDE = UN AÑO, CORROBORA QUE SEA UN INFORME DE UN AÑO Y UN MES CORRIDO 
 
 # LISTO: FORMULARIO: QUE TENGA '(CER0)'
 # LISTO: TODOS LOS METACAMPOS = tRUE, SITUACIÓN= TODOS, ESTADO: AMBOS EDAD INICIAL=0, FINAL MAYR A 20, SEXO AMBOS
-# TODO: CORROBORAR QUE ESTÉ CADA COLUMNA
+# LISTO: CORROBORAR QUE ESTÉ CADA COLUMNA
 
-#VALIDACIONES DE ARCHIVO (TODO: HACER UN DICT)
-#global comuna, cesfam, formulario
 
 # cambiar símbolos.
 
@@ -290,7 +291,7 @@ class Validar():
         else:
             return self.no
 
-    def columnas(self):
+    def columnas(self): # corrobora que estén todas las columnas, y en la línea que corresponde
         columnas_referencia = ['SERVICIO SALUD',
  'ESTABLECIMIENTO',
  'RUT',
