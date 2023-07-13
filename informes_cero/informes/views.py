@@ -78,14 +78,24 @@ def registrar_usuario(request):
 def hola(request):
     return render(request,"informes/hola.html")
 
+def archivo_incorrecto(request):
+    return render(request,"informes/archivo_incorrecto.html")
+
 def logout_view(request):
     
     logout(request)
     return render(request, "informes/logout.html")
 
 def subir_archivo(request):
-    if request.method == "POST": #si viene POST, es porque viene el archivo
+    if request.method == "POST":#si viene POST, es porque viene el archivo
+        nombre_archivo = str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
+        
+
+        #if not nombre_archivo.lower().endswith(".xlsx"): #si no termina en .xlsx
+        #    return HttpResponseRedirect("/informes/archivo_incorrecto.html") #redirige a este template
+            
         form = SubirArchivoForm(request.POST, request.FILES) #se trae la instancia del formulario
+        
         instance = Archivo(file=request.FILES["file"]) #se instancia un objeto Archivo
         instance.save() #se guarda
         return HttpResponseRedirect("/informes/subir_exito.html")

@@ -4,7 +4,7 @@
 <div class= "mt-1 ml-1">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="file" name="file">
+        <input type="file" accept=".xlsx"  name="file">
         <button type="submit">Subir</button>
       </form>
     
