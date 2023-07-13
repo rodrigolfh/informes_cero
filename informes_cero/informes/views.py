@@ -12,8 +12,11 @@ from .forms import RegistrarUsuarioForm
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
+from django.views.generic import ListView
 from .forms import SubirArchivoForm
 from .analisis import *
+from django.template import loader
+
 
 
 
@@ -87,7 +90,12 @@ def logout_view(request):
     logout(request)
     return render(request, "informes/logout.html")
 
+
+
+
+
 def subir_archivo(request):
+    #context = {}
     if request.method == "POST":#si viene POST, es porque viene el archivo
         nombre_archivo = './archivos/' + str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
         
@@ -103,7 +111,7 @@ def subir_archivo(request):
 
         instance.save() #se guarda
         archivo_df = Validar(nombre_archivo)
-        context = {}
+        """
         context['nombre'] = nombre_archivo
         context['xlsx'] = archivo_df.xlsx()
         context['comuna'] = archivo_df.comuna()
@@ -116,14 +124,19 @@ def subir_archivo(request):
         context['edad'] = archivo_df.edad()
         context['sexo'] = archivo_df.sexo()
         context['columnas'] = archivo_df.columnas()
+        """
+        context = generar_contexto_validacion(archivo_df)
         print(context)
-       
-        return render(request,"informes/validaciones.html", context)
+        
+        #return HttpResponse(t.render(c, request), content_type="application/xhtml")
+        return render(request,"informes/subir.html", {"context" : context})
     else:
         form = SubirArchivoForm() #formulario vacío
     return render(request, "informes/subir.html", {"form": form})
 
+"""
 def validaciones(request):
    
 
     return render(request,"informes/validaciones.html")
+"""

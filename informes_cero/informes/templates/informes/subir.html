@@ -11,7 +11,84 @@
       {% if uploaded_file_url %}
         <p>Archivo subido a: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
       {% endif %}
+
     
+    
+    {%if context.hecho%}
+    {%if context.validaciones%}
+    
+    <h3 color='green'> La planilla {{context.nombre}} ha sido validada sin problemas<h3>
+      <h2> Para confirmar el ingreso presione 'Confirmar'</h2>
+      <button>Confirmar</button>
+    {%endif%}
+    {%if not context.validaciones%}
+    
+   
+    <h3 color='red'> La planilla {{context.nombre}} no pudo ser validada<h3>
+      <h2> Vuelva a subir una planilla válida</h2>
+     {%endif%}
+
+
+    <table class="table table-striped">
+      <thead>
+          <tr>
+              <th>Validación</th>
+              <th>Resultado</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td>nombre</td>
+              <td>{{ context.nombre }}</td>
+          </tr>
+          <tr>
+              <td>xlsx</td>
+              <td>{{ context.xlsx }}</td>
+          </tr>
+          <tr>
+              <td>comuna</td>
+              <td>{{ context.comuna }}</td>
+          </tr>
+          <tr>
+              <td>cesfam</td>
+              <td>{{ context.cesfam }}</td>
+          </tr>
+          <tr>
+              <td>formulario</td>
+              <td>{{ context.formulario }}</td>
+          </tr>
+          <tr>
+              <td>metacampos</td>
+              <td>{{ context.metacampos }}</td>
+          </tr>
+          <tr>
+              <td>situación</td>
+              <td>{{ context.situación }}</td>
+          </tr>
+          <tr>
+              <td>estado</td>
+              <td>{{ context.estado }}</td>
+          </tr>
+          <tr>
+              <td>rango_tiempo</td>
+              <td>{{ context.rango_tiempo }}</td>
+          </tr>
+          <tr>
+              <td>edad</td>
+              <td>{{ context.edad }}</td>
+          </tr>
+          <tr>
+              <td>sexo</td>
+              <td>{{ context.sexo }}</td>
+          </tr>
+          <tr>
+              <td>columnas</td>
+              <td>{{ context.columnas }}</td>
+          </tr>
+      </tbody>
+  </table>
+  {%endif%}
+  
     
 </div>
 

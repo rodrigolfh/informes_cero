@@ -191,6 +191,7 @@ class Validar():
         self.archivo_df = pd.read_excel(nombre_archivo, nrows=16) #guardar dataframe del excel, sólo hasta la línea 15 para hacer las validaciones
         self.si = '✅'
         self.no = '❌'
+        #self.contexto = {}
    
     def xlsx(self):
     
@@ -386,6 +387,32 @@ class Validar():
             return self.si
         else:
             return self.no
+    
+def generar_contexto_validacion(dataframe): 
+    contexto = {}
+
+    contexto['nombre'] = dataframe.nombre_archivo
+    contexto['xlsx'] = dataframe.xlsx()
+    contexto['comuna'] = dataframe.comuna()
+    contexto['cesfam'] = dataframe.cesfam()
+    contexto['formulario'] = dataframe.formulario()
+    contexto['metacampos'] = dataframe.metacampos()
+    contexto['situación'] = dataframe.situación()
+    contexto['estado'] = dataframe.estado()
+    contexto['rango_tiempo'] = dataframe.rango_tiempo()
+    contexto['edad'] = dataframe.edad()
+    contexto['sexo'] = dataframe.sexo()
+    contexto['columnas'] = dataframe.columnas()
+
+
+    if dataframe.no in contexto.values(): #para saber si hubo problemas
+        contexto['validaciones'] = False
+    else:
+        contexto['validaciones'] = True
+
+    contexto['hecho'] = True
+    return contexto
+
     
 
         
