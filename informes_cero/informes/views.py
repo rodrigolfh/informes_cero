@@ -16,6 +16,7 @@ from django.views.generic import ListView
 from .forms import SubirArchivoForm
 from .analisis import *
 from django.template import loader
+import os
 
 
 
@@ -97,8 +98,9 @@ def logout_view(request):
 def subir_archivo(request):
     #context = {}
     if request.method == "POST":#si viene POST, es porque viene el archivo
-        nombre_archivo = './archivos/' + str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
         
+        nombre_archivo = './archivos/' + str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
+        nombre_archivo = os.path.normpath(nombre_archivo)
         if not nombre_archivo.lower().endswith(".xlsx"): #si no termina en .xlsx
             return HttpResponseRedirect("/informes/archivo_incorrecto.html") #redirige a este template
            
@@ -110,22 +112,10 @@ def subir_archivo(request):
         #VALIDACIONES. Se le cargarán al sessions, para poder cargarlas al redirigir. Averiguar si existe una forma mejor.
 
         instance.save() #se guarda
-        archivo_df = Validar(nombre_archivo)
-        """
-        context['nombre'] = nombre_archivo
-        context['xlsx'] = archivo_df.xlsx()
-        context['comuna'] = archivo_df.comuna()
-        context['cesfam'] = archivo_df.cesfam()
-        context['formulario'] = archivo_df.formulario()
-        context['metacampos'] = archivo_df.metacampos()
-        context['situación'] = archivo_df.situación()
-        context['estado'] = archivo_df.estado()
-        context['rango_tiempo'] = archivo_df.rango_tiempo()
-        context['edad'] = archivo_df.edad()
-        context['sexo'] = archivo_df.sexo()
-        context['columnas'] = archivo_df.columnas()
-        """
+        archivo_df = Validar(nombre_archivo) #para vincular al archivo subido
+     
         context = generar_contexto_validacion(archivo_df)
+        
         print(context)
         
         #return HttpResponse(t.render(c, request), content_type="application/xhtml")
@@ -133,6 +123,13 @@ def subir_archivo(request):
     else:
         form = SubirArchivoForm() #formulario vacío
     return render(request, "informes/subir.html", {"form": form})
+
+
+def validar_archivo(request):
+    if request.method == "POST":
+        print("request-----------------", request)
+
+    return(render(request, "informes/validación.html"))
 
 """
 def validaciones(request):

@@ -21,3 +21,4 @@ class Usuario(models.Model):
 class Archivo(models.Model):
     title = models.CharField(max_length=50)
     file = models.FileField() #este filefield es la ubicación
+    is_validated = models.BooleanField(default=False)

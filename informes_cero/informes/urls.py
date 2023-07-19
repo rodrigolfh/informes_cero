@@ -11,5 +11,6 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("informes/subir.html", views.subir_archivo, name="subir" ),
     #path("informes/validaciones.html", views.validaciones, name="validaciones" ),
-    path("informes/archivo_incorrecto.html", views.archivo_incorrecto, name="archivo_incorrecto" )
+    path("informes/archivo_incorrecto.html", views.archivo_incorrecto, name="archivo_incorrecto" ),
+    path("informes/validado.html", views.validar_archivo, name="validado")
 ]
