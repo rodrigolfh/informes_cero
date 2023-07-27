@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Usuario
+from .models import Usuario, ArchivoInformeFormularios, ArchivoRemDetallado, Paciente, InformeFormularios
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
@@ -20,3 +20,7 @@ class CustomizedUserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, CustomizedUserAdmin)
+admin.site.register(ArchivoInformeFormularios)
+admin.site.register(ArchivoRemDetallado)
+admin.site.register(Paciente)
+admin.site.register(InformeFormularios)

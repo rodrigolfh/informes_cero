@@ -5,14 +5,14 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User
-from .models import Usuario, Archivo
+from .models import Usuario, ArchivoInformeFormularios
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from .forms import RegistrarUsuarioForm
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from .forms import SubirArchivoForm
 from .analisis import *
 from django.template import loader
@@ -107,29 +107,42 @@ def subir_archivo(request):
             
         form = SubirArchivoForm(request.POST, request.FILES) #se trae la instancia del formulario
         
-        instance = Archivo(file=request.FILES["file"]) #se instancia un objeto Archivo
-
+        instance = ArchivoInformeFormularios(file=request.FILES["file"]) #se instancia un objeto Archivo
         #VALIDACIONES. Se le cargarán al sessions, para poder cargarlas al redirigir. Averiguar si existe una forma mejor.
 
         instance.save() #se guarda
+        print("instancia archivo------------------------------------:", instance)
         archivo_df = Validar(nombre_archivo) #para vincular al archivo subido
-     
+        print("-----------------------nombre archivo:", nombre_archivo)
         context = generar_contexto_validacion(archivo_df)
-        
-        print(context)
+        if context['validaciones'] == False:
+            instance.delete()
+      
         
         #return HttpResponse(t.render(c, request), content_type="application/xhtml")
-        return render(request,"informes/subir.html", {"context" : context})
+        return render(request,"informes/subir.html", {"context" : context, 'objeto_archivo' : instance})
     else:
         form = SubirArchivoForm() #formulario vacío
     return render(request, "informes/subir.html", {"form": form})
 
+class ValidarArchivoDetailView(DetailView):
+    model = ArchivoInformeFormularios
+    template_name = 'informes/validado.html'
 
-def validar_archivo(request):
-    if request.method == "POST":
-        print("request-----------------", request)
+    def get_object(self):
+        self.id_archivo = self.request.GET.get('id_archivo')
+        #print("request-------------------------:", self.request)
+        #print("request.GET.get-------------------------", self.request.GET.get)
+        #print("id_archivo---------------------------------------------:", self.id_archivo)
+        obj = ArchivoInformeFormularios.objects.get(id=int(self.id_archivo))
+        return obj
+   
 
-    return(render(request, "informes/validación.html"))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["archivo"] = ArchivoInformeFormularios.objects.get(id=self.id_archivo)
+        return context
+
 
 """
 def validaciones(request):

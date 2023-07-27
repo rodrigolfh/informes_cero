@@ -19,11 +19,11 @@
     
     <h3 color='green'> La planilla {{context.nombre}} ha sido validada sin problemas<h3>
       <h2> Para confirmar el ingreso presione 'Confirmar'</h2>
-      <form method="post" action= {% url 'validado' %}>
+      <form method="get" action= {% url 'validado' %}>
     {%csrf_token  %}
-    <input type="hidden" name="validar", value="validar">
+    <input type="hidden" name="id_archivo", value={{objeto_archivo.id}}>
+    <button type="submit">Confirmar</button>
     </form>
-      <button>Confirmar</button>
     {%endif%}
     {%if not context.validaciones%}
     
