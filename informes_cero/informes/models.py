@@ -11,6 +11,9 @@ class Establecimiento(models.Model): #creado directamente en admin
     establecimiento = models.CharField(max_length=3, choices=establecimiento_choices)
     comuna = models.CharField(max_length=20)
     
+    def __str__(self):
+        return self.establecimiento
+    
 class Usuario(models.Model): #usuario del sistema, no un paciente
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)   
     rut = models.CharField(primary_key=True, max_length=12, unique=True) #con primary key
@@ -25,20 +28,22 @@ class Usuario(models.Model): #usuario del sistema, no un paciente
     
 
 class ArchivoInformeFormularios(models.Model):
+    id_archivo_informe = models.AutoField(primary_key=True, default = 0)
     title = models.CharField(max_length=50)
     file = models.FileField() #este filefield es la ubicación
     is_validated = models.BooleanField(default=False)
 
 class ArchivoRemDetallado(models.Model):
+    id_archivo_rem = models.AutoField(primary_key=True, default=0)
     title = models.CharField(max_length=50)
     file = models.FileField() #este filefield es la ubicación
     is_validated = models.BooleanField(default=False)
     
 class Paciente(models.Model): #unopor cada paciente que aparece por primera vez en el informe de formularios
-    rut_sin_dv = models.CharField(max_length=12)
+    rut_sin_dv = models.CharField(max_length=12, primary_key=True, default=0)
     dv = models.CharField(max_length=3)
     nombre = models.CharField(max_length=50)
-    fecha_nac = models.DateField()
+    fecha_nac = models.DateField(null=True)
     sexo = models.CharField(max_length=10)
     fono_1 = models.CharField(max_length=12, null=True)
     fono_2 = models.CharField(max_length=12, null=True)
@@ -46,6 +51,7 @@ class Paciente(models.Model): #unopor cada paciente que aparece por primera vez 
     bajo_control = models.BooleanField(default = False)
 
 class InformeFormularios(models.Model):
+    informe_formularios_id = models.AutoField(primary_key=True, default=0)
     usuario = models.OneToOneField(Usuario, on_delete=models.DO_NOTHING, null = False)
     paciente = models.ForeignKey(Paciente, on_delete=models.DO_NOTHING, null=False)
     fecha_formulario = models.DateField()

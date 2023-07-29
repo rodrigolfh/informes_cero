@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Usuario, ArchivoInformeFormularios, ArchivoRemDetallado, Paciente, InformeFormularios
+from .models import Usuario, ArchivoInformeFormularios, ArchivoRemDetallado, Paciente, InformeFormularios, Establecimiento
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
@@ -24,3 +24,4 @@ admin.site.register(ArchivoInformeFormularios)
 admin.site.register(ArchivoRemDetallado)
 admin.site.register(Paciente)
 admin.site.register(InformeFormularios)
+admin.site.register(Establecimiento)

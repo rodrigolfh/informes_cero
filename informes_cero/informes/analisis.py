@@ -2,6 +2,8 @@ import pandas as pd
 from datetime import date
 import msoffcrypto
 import io
+from .models import Paciente, Usuario, InformeFormularios, Establecimiento
+from datetime import datetime
 """
 registro=pd.read_excel('archivos/Informe_Formularios_RAYEN_4.xlsx', header=16) #los headers de las columnas comienzan en la fila 17
 
@@ -184,6 +186,28 @@ preguntas = {
 
 
 archivo = './archivos/Informe_Formularios_RAYEN_4.xlsx'
+"""
+
+class CargarInformeFormularios(BaseCommand):
+    help = 'Load data from a pandas DataFrame into the SQLite database'
+
+    def handle(self, *args, **kwargs):
+
+        df = pd.read_csv('your_dataframe.csv')
+
+        # Convert DataFrame rows to Django objects and save them to the database
+        for _, row in df.iterrows():
+            obj = Infor(
+                column1=row['column1'],
+                column2=row['column2'],
+                # Add other fields as needed
+            )
+            obj.save()
+
+        self.stdout.write(self.style.SUCCESS('Data loaded successfully.'))
+"""
+
+
 
 class Validar(): 
     def __init__(self, nombre_archivo):
@@ -610,13 +634,125 @@ columnas_referencia_c = ['SERVI',
  '51.- ',
  '52.- ',
  '53.- ']
-        
 
+
+def string_a_fecha(fecha_string):
+   
+    try:
+        parsed_date = datetime.strptime(fecha_string, "%d/%m/%Y")
+    except ValueError:
     
+        return None
 
+    date_part = parsed_date.date()
 
+    return date_part
+
+def formateo_establecimiento(string_establecimiento):
         
+    try:    
+        if 'esta' in string_establecimiento.lower():
+            return Establecimiento.objects.get(establecimiento='EST')
+        elif 'craw' in string_establecimiento.lower():
+            return Establecimiento.objects.get(establecimiento='JC')
+        elif 'carr' in string_establecimiento.lower():
+            return Establecimiento.objects.get(establecimiento='HC')
+        elif 'baqu' in string_establecimiento.lower():
+            return Establecimiento.objects.get(establecimiento='BAQ')
+    except:
+        print("Establecimiento no válido")
+
+  
+
+def ingreso(archivo):
+    informe_formularios_headers = pd.read_excel(archivo, nrows=0, header=16) #dataframe con solo los headers
+    riesgos = []
+    for header in informe_formularios_headers:
+        if ('0' in header) and ('5' in header) and ('RIESGO' in header):
+            riesgos.append(header)
+        if ('6' in header) and ('9' in header) and ('RIESGO' in header):
+            riesgos.append(header)
+        if ('6' in header) and ('9' in header) and ('RIESGO' in header):
+            riesgos.append(header)
     
+    print('riesgos::::::::::::::::::::', riesgos)
+    columnas = ['ESTABLECIMIENTO', 'RUT', 'DV', 'PACIENTE', 'FECHA DE NACIMIENTO', 'SEXO', 'TELEFONO 1', 'TELEFONO 2', 'FECHA FORMULARIO', 'FUNCIONARIOS FORMULARIO', '53.- ESTADO' ]
+    columnas.extend(riesgos)
+    informe_formularios_df = pd.read_excel(archivo, header=16, usecols=columnas)
+    for index, fila in informe_formularios_df.iterrows():
+        if not fila['RUT']:
+            print(f"Paciente {fila['PACIENTE']} no tiene rut, no será agregado a la base de datos")
+            pass
+            
+            
+            
+        elif not Paciente.objects.filter(rut_sin_dv=fila['RUT']): #si el paciente no existe, se agrega
+            instancia_paciente = Paciente(rut_sin_dv=fila['RUT'],
+                                      dv =fila['DV'],
+                                      nombre = fila['PACIENTE'],
+                                      fecha_nac = string_a_fecha(fila['FECHA DE NACIMIENTO']), #string a formato datefield
+                                      sexo = fila['SEXO'],
+                                      fono_1 = fila['TELEFONO 1'],
+                                      fono_2 = fila['TELEFONO 2'],
+                                      establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO']), #segun choices
+                                      )
+            instancia_paciente.save()
+
+        elif Paciente.objects.filter(rut_sin_dv=fila['RUT']):
+            instancia_paciente = Paciente.objects.get(rut_sin_dv = fila['RUT'])#si ya está, hay que actualizar
+            instancia_paciente.establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO'])
+            instancia_paciente.fono_1 = fila['TELEFONO 1']
+            instancia_paciente.fono_2 = fila['TELEFONO 2']
+          
+            instancia_paciente.save()
+    
+    return True
+
+    """
+    return False
+    usuario = models.OneToOneField(Usuario, on_delete=models.DO_NOTHING, null = False)
+    paciente = models.ForeignKey(Paciente, on_delete=models.DO_NOTHING, null=False)
+    fecha_formulario = models.DateField()
+    riesgo_choices = [('ALTO', 'Riesgo Alto'),('BAJO', 'Riesgo Bajo')]
+    riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
+    estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
+    estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
+    datetime_prox_control = models.DateTimeField()
+
+    rut_sin_dv = models.CharField(max_length=12)
+    dv = models.CharField(max_length=3)
+    nombre = models.CharField(max_length=50)
+    fecha_nac = models.DateField()
+    sexo = models.CharField(max_length=10)
+    fono_1 = models.CharField(max_length=12, null=True)
+    fono_2 = models.CharField(max_length=12, null=True)
+    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.DO_NOTHING) #que se actualice cada vez que aparezca en un formulario (cambios de cesfam)
+    bajo_control = models.BooleanField(default = False)
+
+class Validar(): 
+    def __init__(self, nombre_archivo):
+        self.nombre_archivo = nombre_archivo
+        self.archivo_df = pd.read_excel(nombre_archivo, nrows=16) #guardar dataframe del excel, sólo hasta la línea 16 para hacer las validaciones
+        self.si = '✅'
+        self.no = '❌'
+        #self.contexto = {}
+    
+    try:
+        def xlsx(self):
+    
+            if self.nombre_archivo.endswith(".xlsx"):
+                return self.si
+            else:
+                return self.no
+        
+        def comuna(self):
+            comuna = 'Vallenar'
+            if comuna in str(self.archivo_df.iat[2, 1]):
+                return self.si
+            else:
+                return self.no
+       
+    """
 
 
 #websockets enviar mail

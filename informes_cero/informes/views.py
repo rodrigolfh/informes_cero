@@ -101,6 +101,7 @@ def subir_archivo(request):
         
         nombre_archivo = './archivos/' + str(request.FILES["file"]) #se asigna variable para revisar nombre de archivo
         nombre_archivo = os.path.normpath(nombre_archivo)
+        print(nombre_archivo)
         if not nombre_archivo.lower().endswith(".xlsx"): #si no termina en .xlsx
             return HttpResponseRedirect("/informes/archivo_incorrecto.html") #redirige a este template
            
@@ -114,6 +115,8 @@ def subir_archivo(request):
         print("instancia archivo------------------------------------:", instance)
         archivo_df = Validar(nombre_archivo) #para vincular al archivo subido
         print("-----------------------nombre archivo:", nombre_archivo)
+        informe_df = ingreso(nombre_archivo)
+        print("informe_Df::::::::::::::::::::::::::::", informe_df)
         context = generar_contexto_validacion(archivo_df)
         if context['validaciones'] == False:
             instance.delete()
