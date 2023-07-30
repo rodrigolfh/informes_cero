@@ -54,8 +54,8 @@ class Paciente(models.Model): #unopor cada paciente que aparece por primera vez 
     bajo_control = models.BooleanField(default = False)
 
 class InformeFormularios(models.Model):
-    informe_formularios_id = models.AutoField(primary_key=True, default=0)
-    usuario = models.OneToOneField(Usuario, on_delete=models.DO_NOTHING, null = False)
+    informe_formularios_id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.DO_NOTHING, null = False)
     paciente = models.ForeignKey(Paciente, on_delete=models.DO_NOTHING, null=False)
     fecha_formulario = models.DateField()
     riesgo_choices = [('ALTO', 'Riesgo Alto'),('BAJO', 'Riesgo Bajo')]

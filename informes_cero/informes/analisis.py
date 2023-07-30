@@ -637,16 +637,26 @@ columnas_referencia_c = ['SERVI',
 
 
 def string_a_fecha(fecha_string):
-   
+    fecha_string.replace("'", "") # viene con una ' al comienzo a veces
+    
     try:
         parsed_date = datetime.strptime(fecha_string, "%d/%m/%Y")
-    except ValueError:
-    
+    except ValueError:            
         return None
 
-    date_part = parsed_date.date()
+    return parsed_date.date()
 
-    return date_part
+def string_a_fecha_hora(fechahora_string):
+    fechahora_string.replace("'", "")
+    try:
+        parsed_date = datetime.strptime(fechahora_string, "%d-%m-%Y %H:%M:%S")
+    
+    except ValueError:
+        return None
+    
+    return parsed_date.date()
+            
+
 
 def formateo_establecimiento(string_establecimiento):
         
@@ -682,22 +692,23 @@ def formateo_funcionario(funcionario):
 def ingreso(archivo):
     informe_formularios_headers = pd.read_excel(archivo, nrows=0, header=16) #dataframe con solo los headers
     riesgos = []
-    for header in informe_formularios_headers:
-        if ('0' in header) and ('5' in header) and ('RIESGO' in header):
-            riesgos.append(header)
-        if ('6' in header) and ('9' in header) and ('RIESGO' in header):
-            riesgos.append(header)
-        if ('10' in header) and ('19' in header) and ('RIESGO' in header):
-            riesgos.append(header)
-        
     headers_fecha_prox_control = []
     for header in informe_formularios_headers:
-        if ('0' in header) and ('5' in header) and ('FECHA' in header):
+        if ('0 A 5' in header) and ('RIESGO' in header):
+            riesgos.append(header)
+        elif ('6 A 9' in header) and ('RIESGO' in header):
+            riesgos.append(header)
+        elif ('10 A 19' in header) and ('RIESGO' in header):
+            riesgos.append(header)
+        elif ('0' in header) and ('5' in header) and ('FECHA' in header):
             headers_fecha_prox_control.append(header)
-        if ('6' in header) and ('9' in header) and ('FECHA' in header):
+        elif ('6' in header) and ('9' in header) and ('FECHA' in header):
             headers_fecha_prox_control.append(header)
-        if ('10' in header) and ('19' in header) and ('FECHA' in header):
+        elif ('10' in header) and ('19' in header) and ('FECHA' in header):
             headers_fecha_prox_control.append(header)
+    
+   
+    
     
     print('riesgos::::::::::::::::::::', riesgos)
     columnas = ['ESTABLECIMIENTO',
@@ -716,6 +727,7 @@ def ingreso(archivo):
                 ]
     columnas.extend(riesgos)
     columnas.extend(headers_fecha_prox_control)
+
     informe_formularios_df = pd.read_excel(archivo, header=16, usecols=columnas)
     for index, fila in informe_formularios_df.iterrows():
         rut_sin_dv=fila['RUT'],
@@ -728,14 +740,34 @@ def ingreso(archivo):
         establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO']), #segun choices
         usuario = formateo_funcionario(fila['FUNCIONARIOS FORMULARIO'])
         fecha_formulario = string_a_fecha(fila['FECHA FORMULARIO'])
-        for riesgo in riesgos:
-            if pd.isna(fila[riesgo]):
-                pass
-            else:
+        riesgo_0_a_5 = fila[riesgos[0]]
+        riesgo_6_a_9 = fila[riesgos[1]]
+        riesgo_10_a_19 = fila[riesgos[2]]
+        
+        if not pd.isna(riesgo_0_a_5):
+            riesgo = riesgo_0_a_5
+        elif not pd.isna(riesgo_6_a_9):
+            riesgo = riesgo_6_a_9
+        elif not pd.isna(riesgo_10_a_19):
+            riesgo = riesgo_10_a_19
+            
+        if 'alto' in riesgo.lower():
+            riesgo = 'ALTO'
+        elif 'bajo' in riesgo.lower():
+            riesgo = 'BAJO'
+        """
+                for riesgo in riesgos:
+            print("riesgo:", riesgo)
+            if not pd.isna(fila[riesgo]):
+                print("fila-riesgo", fila[riesgo])
                 if 'alto' in fila[riesgo].lower():
                     riesgo = 'ALTO'
                 elif 'bajo' in fila[riesgo].lower():
                     riesgo = 'BAJO'
+                else:
+                    pass
+            
+        """    
         estado_control = fila['53.- ESTADO']
         if pd.isna(estado_control):
             estado_control = ''
@@ -743,11 +775,16 @@ def ingreso(archivo):
             estado_control = 'PRI'
         elif estado_control.startswith('Ing'):
             estado_control = 'ING'
+            
+            
+            
         for fecha in headers_fecha_prox_control:
             if pd.isna(fila[fecha]):
                 pass
             else:
-                datetime_prox_control = string_a_fecha(fila[fecha])
+                
+                datetime_prox_control = string_a_fecha_hora(fila[fecha])
+                
             
         
             
@@ -768,6 +805,7 @@ def ingreso(archivo):
                                       establecimiento = establecimiento, #segun choices
                                       )
             instancia_paciente.save()
+            pass
             
             
 
@@ -780,13 +818,22 @@ def ingreso(archivo):
                 instancia_paciente.fono_2 = fila['TELEFONO 2']
           
             instancia_paciente.save()
-        instancia_formulario = InformeFormularios(usuario=usuario,
-                                                  paciente=instancia_paciente,
+            pass
+        print("usuario para formulario", usuario)
+        
+        """
+        if Usuario.objects.filter(usuario=formateo_funcionario(fila['FUNCIONARIOS FORMULARIO'])):
+            instancia_formulario = Usuario.objects.get(usuario=formateo_funcionario(fila['FUNCIONARIOS FORMULARIO']))
+        """
+        
+        instancia_formulario = InformeFormularios(usuario=formateo_funcionario(fila['FUNCIONARIOS FORMULARIO']),
+                                                  paciente=Paciente.objects.get(rut_sin_dv=fila['RUT']),
                                                   fecha_formulario = fecha_formulario,
                                                   riesgo = riesgo,
                                                   estado_control = estado_control,
                                                   datetime_prox_control = datetime_prox_control
                                                   )
+        print("instancia formulario----------", instancia_formulario)
     
         instancia_formulario.save()
     """
