@@ -25,6 +25,9 @@ class Usuario(models.Model): #usuario del sistema, no un paciente
     mail = models.EmailField(max_length=60)
     establecimiento = models.ManyToManyField(Establecimiento)
     
+    def __str__(self):
+        return f"{self.nombre} {self.apellidos}"
+    
     
 
 class ArchivoInformeFormularios(models.Model):
@@ -62,7 +65,7 @@ class InformeFormularios(models.Model):
     riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
     estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
     estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
-    datetime_prox_control = models.DateTimeField(null = True) # el campo viene como datetime
+    fecha_prox_control = models.DateField(null = True) # el campo viene como datetime
     
 #class RemA09Detallado(models.Model):
 #    paciente = models.ForeignKey(Paciente) #en este xlsx viene el rut con DV,sin puntos ni guión

@@ -3,7 +3,9 @@ from datetime import date
 import msoffcrypto
 import io
 from .models import Paciente, Usuario, InformeFormularios, Establecimiento
+from django.contrib.auth.models import User
 from datetime import datetime
+from django.core.exceptions import ObjectDoesNotExist #para usar el doesnotexist como excepcion con try-except
 """
 registro=pd.read_excel('archivos/Informe_Formularios_RAYEN_4.xlsx', header=16) #los headers de las columnas comienzan en la fila 17
 
@@ -682,8 +684,17 @@ def formateo_fono(fono):
     
 def formateo_funcionario(funcionario):
     funcionario = funcionario[5:14].rstrip() #solo el rut, si el rut es menor que 10 millones, le quita el espacio.
-    funcionario = Usuario.objects.get(rut=funcionario)
-    return funcionario
+    try:
+        funcionario_objeto = Usuario.objects.get(rut=funcionario)
+        return funcionario_objeto
+    
+    except ObjectDoesNotExist:
+        nuevo_user = User(username=funcionario)
+        nuevo_user.save()
+        nuevo_usuario = Usuario(user=nuevo_user, rut=funcionario, nombre=funcionario)
+        nuevo_usuario.save()
+        funcionario_nuevo = nuevo_usuario
+        return funcionario_nuevo
 
     
 
@@ -743,6 +754,10 @@ def ingreso(archivo):
         riesgo_0_a_5 = fila[riesgos[0]]
         riesgo_6_a_9 = fila[riesgos[1]]
         riesgo_10_a_19 = fila[riesgos[2]]
+        instancia_paciente = ''
+        
+        
+        
         
         if not pd.isna(riesgo_0_a_5):
             riesgo = riesgo_0_a_5
@@ -783,7 +798,7 @@ def ingreso(archivo):
                 pass
             else:
                 
-                datetime_prox_control = string_a_fecha_hora(fila[fecha])
+                fecha_prox_control = string_a_fecha_hora(fila[fecha])
                 
             
         
@@ -802,7 +817,7 @@ def ingreso(archivo):
                                       sexo = sexo,
                                       fono_1 = fono_1,
                                       fono_2 = fono_2,
-                                      establecimiento = establecimiento, #segun choices
+                                      establecimiento = establecimiento[0], #segun choices
                                       )
             instancia_paciente.save()
             pass
@@ -811,79 +826,33 @@ def ingreso(archivo):
 
         elif Paciente.objects.filter(rut_sin_dv=fila['RUT']):
             instancia_paciente = Paciente.objects.get(rut_sin_dv = fila['RUT'])#si ya está, hay que actualizar
-            instancia_paciente.establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO'])
-            if not pd.isna(fila['TELEFONO 1']):
-                instancia_paciente.fono_1 = fila['TELEFONO 1']
-            if not pd.isna(fila['TELEFONO 2']):
-                instancia_paciente.fono_2 = fila['TELEFONO 2']
+            instancia_paciente.establecimiento = establecimiento[0] #por algun motivo la fx devuelve una tupla con 1 elemento
+            if not pd.isna(fono_1):
+                instancia_paciente.fono_1 = fono_1
+            if not pd.isna(fono_2):
+                instancia_paciente.fono_2 = fono_1
           
             instancia_paciente.save()
             pass
         print("usuario para formulario", usuario)
+     
+     
+      # si no hay un formulario asociado al paciente, en la misma fecha, SE ESCRIBE.       
         
-        """
-        if Usuario.objects.filter(usuario=formateo_funcionario(fila['FUNCIONARIOS FORMULARIO'])):
-            instancia_formulario = Usuario.objects.get(usuario=formateo_funcionario(fila['FUNCIONARIOS FORMULARIO']))
-        """
-        
-        instancia_formulario = InformeFormularios(usuario=formateo_funcionario(fila['FUNCIONARIOS FORMULARIO']),
-                                                  paciente=Paciente.objects.get(rut_sin_dv=fila['RUT']),
+        if not InformeFormularios.objects.filter(paciente=rut_sin_dv, fecha_formulario=fecha_formulario):
+            
+            
+            
+            instancia_formulario = InformeFormularios(usuario=usuario,
+                                                  paciente=instancia_paciente,
                                                   fecha_formulario = fecha_formulario,
                                                   riesgo = riesgo,
                                                   estado_control = estado_control,
-                                                  datetime_prox_control = datetime_prox_control
+                                                  fecha_prox_control = fecha_prox_control
                                                   )
-        print("instancia formulario----------", instancia_formulario)
+            print("instancia formulario----------", instancia_formulario)
+
+            instancia_formulario.save()
     
-        instancia_formulario.save()
-    """
     
-    return False
-    usuario = models.OneToOneField(Usuario, on_delete=models.DO_NOTHING, null = False)
-    paciente = models.ForeignKey(Paciente, on_delete=models.DO_NOTHING, null=False)
-    fecha_formulario = models.DateField()
-    riesgo_choices = [('ALTO', 'Riesgo Alto'),('BAJO', 'Riesgo Bajo')]
-    riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
-    estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
-    estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
-    datetime_prox_control = models.DateTimeField()
-    """
     return True
-"""
-
-class Validar(): 
-    def __init__(self, nombre_archivo):
-        self.nombre_archivo = nombre_archivo
-        self.archivo_df = pd.read_excel(nombre_archivo, nrows=16) #guardar dataframe del excel, sólo hasta la línea 16 para hacer las validaciones
-        self.si = '✅'
-        self.no = '❌'
-        #self.contexto = {}
-    
-    try:
-        def xlsx(self):
-    
-            if self.nombre_archivo.endswith(".xlsx"):
-                return self.si
-            else:
-                return self.no
-        
-        def comuna(self):
-            comuna = 'Vallenar'
-            if comuna in str(self.archivo_df.iat[2, 1]):
-                return self.si
-            else:
-                return self.no
-       
-"""
-
-
-#websockets enviar mail
-
-#revisar utf encoding
-
-#jasonwebtocken
-#tockerizar forms logins y archivos web tocken del response
-
-#aws lambda crear funciones como endpoint validacion de archivos en la nuve
-
-#pip black Formatter autopip
