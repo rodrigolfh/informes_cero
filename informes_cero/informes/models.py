@@ -45,8 +45,11 @@ class Paciente(models.Model): #unopor cada paciente que aparece por primera vez 
     nombre = models.CharField(max_length=50)
     fecha_nac = models.DateField(null=True)
     sexo = models.CharField(max_length=10)
-    fono_1 = models.CharField(max_length=12, null=True)
-    fono_2 = models.CharField(max_length=12, null=True)
+    fono_1 = models.CharField(max_length=12, null=True) #fono extraido de formulario
+    fono_2 = models.CharField(max_length=12, null=True) #fono extraido de formulario
+    fono_3 = models.CharField(max_length=12, default='Sin Número')
+    fono_4 = models.CharField(max_length=12, default='Sin Número')
+    
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.DO_NOTHING) #que se actualice cada vez que aparezca en un formulario (cambios de cesfam)
     bajo_control = models.BooleanField(default = False)
 
@@ -59,7 +62,7 @@ class InformeFormularios(models.Model):
     riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
     estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
     estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
-    datetime_prox_control = models.DateTimeField() # el campo viene como datetime
+    datetime_prox_control = models.DateTimeField(null = True) # el campo viene como datetime
     
 #class RemA09Detallado(models.Model):
 #    paciente = models.ForeignKey(Paciente) #en este xlsx viene el rut con DV,sin puntos ni guión

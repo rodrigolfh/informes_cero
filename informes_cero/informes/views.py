@@ -120,6 +120,7 @@ def subir_archivo(request):
         context = generar_contexto_validacion(archivo_df)
         if context['validaciones'] == False:
             instance.delete()
+            print("----------------instancia borrada")
       
         
         #return HttpResponse(t.render(c, request), content_type="application/xhtml")

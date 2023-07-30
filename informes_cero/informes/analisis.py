@@ -661,6 +661,21 @@ def formateo_establecimiento(string_establecimiento):
             return Establecimiento.objects.get(establecimiento='BAQ')
     except:
         print("Establecimiento no válido")
+    
+def formateo_fono(fono):
+    print("fono___________________", fono)
+    if pd.isna(fono) : #si no hay número (Not A Number)
+        return "Sin Número"
+ 
+    elif isinstance(fono, float):
+        return int(fono)
+    
+def formateo_funcionario(funcionario):
+    funcionario = funcionario[5:14].rstrip() #solo el rut, si el rut es menor que 10 millones, le quita el espacio.
+    funcionario = Usuario.objects.get(rut=funcionario)
+    return funcionario
+
+    
 
   
 
@@ -672,43 +687,110 @@ def ingreso(archivo):
             riesgos.append(header)
         if ('6' in header) and ('9' in header) and ('RIESGO' in header):
             riesgos.append(header)
-        if ('6' in header) and ('9' in header) and ('RIESGO' in header):
+        if ('10' in header) and ('19' in header) and ('RIESGO' in header):
             riesgos.append(header)
+        
+    headers_fecha_prox_control = []
+    for header in informe_formularios_headers:
+        if ('0' in header) and ('5' in header) and ('FECHA' in header):
+            headers_fecha_prox_control.append(header)
+        if ('6' in header) and ('9' in header) and ('FECHA' in header):
+            headers_fecha_prox_control.append(header)
+        if ('10' in header) and ('19' in header) and ('FECHA' in header):
+            headers_fecha_prox_control.append(header)
     
     print('riesgos::::::::::::::::::::', riesgos)
-    columnas = ['ESTABLECIMIENTO', 'RUT', 'DV', 'PACIENTE', 'FECHA DE NACIMIENTO', 'SEXO', 'TELEFONO 1', 'TELEFONO 2', 'FECHA FORMULARIO', 'FUNCIONARIOS FORMULARIO', '53.- ESTADO' ]
+    columnas = ['ESTABLECIMIENTO',
+                'RUT', 
+                'DV', 
+                'PACIENTE', 
+                'FECHA DE NACIMIENTO', 
+                'SEXO', 
+                'TELEFONO 1', 
+                'TELEFONO 2', 
+                'FECHA FORMULARIO', 
+                'FUNCIONARIOS FORMULARIO', 
+                '53.- ESTADO',
+                'FUNCIONARIOS FORMULARIO',
+                'FECHA FORMULARIO'
+                ]
     columnas.extend(riesgos)
+    columnas.extend(headers_fecha_prox_control)
     informe_formularios_df = pd.read_excel(archivo, header=16, usecols=columnas)
     for index, fila in informe_formularios_df.iterrows():
+        rut_sin_dv=fila['RUT'],
+        dv =fila['DV'],
+        nombre = fila['PACIENTE'],
+        fecha_nac = string_a_fecha(fila['FECHA DE NACIMIENTO']), #string a formato datefield
+        sexo = fila['SEXO'],
+        fono_1 = formateo_fono(fila['TELEFONO 1']),
+        fono_2 = formateo_fono(fila['TELEFONO 2']),
+        establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO']), #segun choices
+        usuario = formateo_funcionario(fila['FUNCIONARIOS FORMULARIO'])
+        fecha_formulario = string_a_fecha(fila['FECHA FORMULARIO'])
+        for riesgo in riesgos:
+            if pd.isna(fila[riesgo]):
+                pass
+            else:
+                if 'alto' in fila[riesgo].lower():
+                    riesgo = 'ALTO'
+                elif 'bajo' in fila[riesgo].lower():
+                    riesgo = 'BAJO'
+        estado_control = fila['53.- ESTADO']
+        if pd.isna(estado_control):
+            estado_control = ''
+        elif estado_control.startswith('Pri'):
+            estado_control = 'PRI'
+        elif estado_control.startswith('Ing'):
+            estado_control = 'ING'
+        for fecha in headers_fecha_prox_control:
+            if pd.isna(fila[fecha]):
+                pass
+            else:
+                datetime_prox_control = string_a_fecha(fila[fecha])
+            
+        
+            
+
         if not fila['RUT']:
             print(f"Paciente {fila['PACIENTE']} no tiene rut, no será agregado a la base de datos")
             pass
-            
-            
+        
             
         elif not Paciente.objects.filter(rut_sin_dv=fila['RUT']): #si el paciente no existe, se agrega
             instancia_paciente = Paciente(rut_sin_dv=fila['RUT'],
-                                      dv =fila['DV'],
-                                      nombre = fila['PACIENTE'],
-                                      fecha_nac = string_a_fecha(fila['FECHA DE NACIMIENTO']), #string a formato datefield
-                                      sexo = fila['SEXO'],
-                                      fono_1 = fila['TELEFONO 1'],
-                                      fono_2 = fila['TELEFONO 2'],
-                                      establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO']), #segun choices
+                                      dv = dv,
+                                      nombre = nombre,
+                                      fecha_nac = fecha_nac, #string a formato datefield
+                                      sexo = sexo,
+                                      fono_1 = fono_1,
+                                      fono_2 = fono_2,
+                                      establecimiento = establecimiento, #segun choices
                                       )
             instancia_paciente.save()
+            
+            
 
         elif Paciente.objects.filter(rut_sin_dv=fila['RUT']):
             instancia_paciente = Paciente.objects.get(rut_sin_dv = fila['RUT'])#si ya está, hay que actualizar
             instancia_paciente.establecimiento = formateo_establecimiento(fila['ESTABLECIMIENTO'])
-            instancia_paciente.fono_1 = fila['TELEFONO 1']
-            instancia_paciente.fono_2 = fila['TELEFONO 2']
+            if not pd.isna(fila['TELEFONO 1']):
+                instancia_paciente.fono_1 = fila['TELEFONO 1']
+            if not pd.isna(fila['TELEFONO 2']):
+                instancia_paciente.fono_2 = fila['TELEFONO 2']
           
             instancia_paciente.save()
+        instancia_formulario = InformeFormularios(usuario=usuario,
+                                                  paciente=instancia_paciente,
+                                                  fecha_formulario = fecha_formulario,
+                                                  riesgo = riesgo,
+                                                  estado_control = estado_control,
+                                                  datetime_prox_control = datetime_prox_control
+                                                  )
     
-    return True
-
+        instancia_formulario.save()
     """
+    
     return False
     usuario = models.OneToOneField(Usuario, on_delete=models.DO_NOTHING, null = False)
     paciente = models.ForeignKey(Paciente, on_delete=models.DO_NOTHING, null=False)
@@ -718,16 +800,9 @@ def ingreso(archivo):
     estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
     estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
     datetime_prox_control = models.DateTimeField()
-
-    rut_sin_dv = models.CharField(max_length=12)
-    dv = models.CharField(max_length=3)
-    nombre = models.CharField(max_length=50)
-    fecha_nac = models.DateField()
-    sexo = models.CharField(max_length=10)
-    fono_1 = models.CharField(max_length=12, null=True)
-    fono_2 = models.CharField(max_length=12, null=True)
-    establecimiento = models.ForeignKey(Establecimiento, on_delete=models.DO_NOTHING) #que se actualice cada vez que aparezca en un formulario (cambios de cesfam)
-    bajo_control = models.BooleanField(default = False)
+    """
+    return True
+"""
 
 class Validar(): 
     def __init__(self, nombre_archivo):
@@ -752,7 +827,7 @@ class Validar():
             else:
                 return self.no
        
-    """
+"""
 
 
 #websockets enviar mail
