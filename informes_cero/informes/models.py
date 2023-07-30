@@ -55,6 +55,10 @@ class Paciente(models.Model): #unopor cada paciente que aparece por primera vez 
     
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.DO_NOTHING) #que se actualice cada vez que aparezca en un formulario (cambios de cesfam)
     bajo_control = models.BooleanField(default = False)
+    
+    def __str__(self):
+        
+        return f"{self.nombre}, {self.rut_sin_dv}-{self.dv}, {self.establecimiento}"
 
 class InformeFormularios(models.Model):
     informe_formularios_id = models.AutoField(primary_key=True)
@@ -65,7 +69,11 @@ class InformeFormularios(models.Model):
     riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
     estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
     estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
-    fecha_prox_control = models.DateField(null = True) # el campo viene como datetime
+    fecha_prox_control = models.DateField(null = True) 
+    
+    def __str__(self):
+        return f"Odontólog@: {self.usuario}, Paciente: {self.paciente}, Fecha Formulario: {self.fecha_formulario}"
+    
     
 #class RemA09Detallado(models.Model):
 #    paciente = models.ForeignKey(Paciente) #en este xlsx viene el rut con DV,sin puntos ni guión
