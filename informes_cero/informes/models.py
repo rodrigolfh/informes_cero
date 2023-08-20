@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 
 from django.db import models
 
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 
 
 class Establecimiento(models.Model): #creado directamente en admin
@@ -55,6 +58,32 @@ class Paciente(models.Model): #unopor cada paciente que aparece por primera vez 
     
     establecimiento = models.ForeignKey(Establecimiento, on_delete=models.DO_NOTHING) #que se actualice cada vez que aparezca en un formulario (cambios de cesfam)
     bajo_control = models.BooleanField(default = False)
+    estado_choices = [('VENC', 'Vencido'),
+                      ('VHOY', 'Vence Hoy'),
+                      ('V2SM', 'Vence en menos de 2 semanas'),
+                      ('VMES', 'Vence en menos de un mes'),
+                      ('V5SM', 'Vence en menos de 6 semanas'),
+                      ('VGTE', 'Vigente')
+                      ]
+    estado = models.CharField(max_length=4, choices = estado_choices, default='VGTE')
+    
+    def edad_hoy(self):
+        hoy = datetime.now().date()
+        fecha_nacimiento = self.fecha_nac
+    
+        # Calcular la diferencia entre las fechas
+        edad = hoy - fecha_nacimiento
+    
+        # Calcular años, meses y días
+        años = edad.days // 365
+        dias_restantes = edad.days % 365
+        meses = dias_restantes // 30
+        dias = dias_restantes % 30
+    
+        # Formatear la edad como 'AAa, MMm, DDd'
+        edad_formateada = f"{años}a, {meses}m, {dias}d"
+        return edad_formateada
+    
     
     def __str__(self):
         
@@ -69,10 +98,103 @@ class InformeFormularios(models.Model):
     riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
     estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
     estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
-    fecha_prox_control = models.DateField(null = True) 
+    fecha_prox_control = models.DateField(null = True)
+    
+    @property
+    def edad_form(self):
+        
+        fecha_form = self.fecha_formulario
+        fecha_nacimiento = self.paciente.fecha_nac
+    
+        # Calcular la diferencia entre las fechas
+        edad = fecha_form - fecha_nacimiento
+    
+        # Calcular años, meses y días
+        años = edad.days // 365
+        dias_restantes = edad.days % 365
+        meses = dias_restantes // 30
+        dias = dias_restantes % 30
+  
+    
+        # Formatear la edad como 'AAa, MMm, DDd'
+        edad_formateada = f"{años}a, {meses}m, {dias}d"
+        
+        return edad_formateada
+    
+    @property
+    def tiempo_restante(self):
+        hoy = datetime.now().date()
+        tiempo_restante = hoy - self.fecha_formulario
+    
+       
+        dias_restantes = tiempo_restante
+    
+        
+        
+        return dias_restantes.days
+    
+    @property
+    def fecha_sale(self):
+        fecha_form = self.fecha_formulario
+        fecha_nacimiento = self.paciente.fecha_nac
+    
+        # Calcular la diferencia entre las fechas
+        edad_form = fecha_form - fecha_nacimiento
+        
+        edad_años = edad_form.days // 365
+        print("edad_años", edad_años)
+
+        if edad_años < 3:
+            if self.riesgo == 'BAJO':
+                fecha_sale = self.fecha_formulario + relativedelta(months=12)
+                
+                return fecha_sale
+            elif self.riesgo == 'ALTO':
+                fecha_sale = self.fecha_formulario + relativedelta(months=6)
+               
+                return fecha_sale
+        elif edad_años >= 3:
+            if self.riesgo == 'BAJO':
+                fecha_sale = self.fecha_formulario + relativedelta(months=12)
+                
+                return fecha_sale
+            elif self.riesgo == 'ALTO':
+                fecha_sale = self.fecha_formulario + relativedelta(months=4)
+                
+                return fecha_sale
+            
+    @property
+    def tiempo_restante_real(self):
+        hoy = datetime.now().date()
+        tiempo_restante = hoy - self.fecha_sale
+    
+       
+        dias_restantes = tiempo_restante
+    
+        
+        
+        return dias_restantes.days
+      
+    
+    
+    """
+    ======
+
+Corresponde a los niños(as) bajo control que no acudieron a su control con odontólogo(a) en la fecha establecida y que según edad y riesgo alcanzado en el corte, su inasistencia a control supera los plazos máximos especificados a continuación    (2023-07-14 23:22:20)
+- 1 a 2 años: 
+  Bajo riesgo: 12 Meses de inasistencia desde el último control asistente con registro en Formulario.
+  Alto riesgo: 6 Meses de inasistencia desde el último control asistente con registro en Formulario.
+
+- 3 a 9 años:
+  Bajo riesgo: 12 Meses de inasistencia desde el último control asistente con registro en Formulario.
+  Alto riesgo: 4 Meses de inasistencia desde el último control asistente con registro en Formulario.
+    """
+    
+
     
     def __str__(self):
         return f"Odontólog@: {self.usuario}, Paciente: {self.paciente}, Fecha Formulario: {self.fecha_formulario}"
+    
     
     
 #class RemA09Detallado(models.Model):

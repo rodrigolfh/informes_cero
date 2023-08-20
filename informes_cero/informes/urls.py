@@ -12,5 +12,6 @@ urlpatterns = [
     path("informes/subir.html", views.subir_archivo, name="subir" ),
     #path("informes/validaciones.html", views.validaciones, name="validaciones" ),
     path("informes/archivo_incorrecto.html", views.archivo_incorrecto, name="archivo_incorrecto" ),
-    path("validado.html", views.ValidarArchivoDetailView.as_view(), name="validado")
+    path("validado.html", views.ValidarArchivoDetailView.as_view(), name="validado"),
+    path("listview_formularios.html", views.FormulariosBajoControlListView.as_view(), name="formularios")
 ]

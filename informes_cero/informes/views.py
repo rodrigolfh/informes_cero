@@ -1,3 +1,5 @@
+from typing import Any, Dict
+from django.db.models.query import QuerySet
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
@@ -13,7 +15,7 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
 from django.views.generic import ListView, DetailView
-from .forms import SubirArchivoForm
+from .forms import SubirArchivoForm, PacienteForm
 from .analisis import *
 from django.template import loader
 import os
@@ -148,9 +150,22 @@ class ValidarArchivoDetailView(DetailView):
         return context
 
 
-"""
-def validaciones(request):
-   
-
-    return render(request,"informes/validaciones.html")
-"""
+class FormulariosBajoControlListView(ListView):
+    model = InformeFormularios
+    template_name = 'informes/listview_formularios.html'
+    paginate_by = 10
+    
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        paciente_form = PacienteForm()
+        context['paciente_form'] = paciente_form
+        
+        return context
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        return queryset
+        
+        
+    

@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
-from .models import Usuario
+from .models import Usuario, Paciente
 
 
 
@@ -28,22 +28,7 @@ class SubirArchivoForm(forms.Form): #formulario subida archivo
     title = forms.CharField(max_length=50)
     file = forms.FileField() #debe tener un FileField
 
-"""
-class RegistrarUsuarioForm(forms.ModelForm):
-   class Meta:
-        model = Usuario
-        fields = '__all__' 
-
-class RegistrarUsuarioForm(UserCreationForm):
-    rut = forms.CharField(max_length=11)
-    nombres = forms.CharField(max_length=40)
-    apellidos = forms.CharField(max_length=70)
-    cargo = forms.ChoiceField(choices=Usuario.cargo_choices)
-    establecimiento = forms.ChoiceField(choices=Usuario.establecimiento_choices)
-    fono = forms.CharField(max_length=15)
-    email = forms.EmailField(max_length=60)
-
+class PacienteForm(forms.ModelForm):
     class Meta:
-        model = Usuario
-        fields = ('rut', 'nombres', 'apellidos', 'cargo', 'establecimiento', 'fono', 'email')
-"""
+        model = Paciente
+        fields = ['fono_1', 'fono_2', 'fono_3', 'fono_4', 'establecimiento']
