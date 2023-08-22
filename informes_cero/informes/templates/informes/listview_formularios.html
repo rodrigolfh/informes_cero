@@ -1,0 +1,103 @@
+{% extends "informes/base.html" %}
+
+{% block body %}
+<div class= "mt-1 ml-1">
+    <h1>InformeFormularios List</h1>
+    <div class="container">
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; Primera Página</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                {% endif %}
+        
+                <span class="current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Última Página &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Cirujano Dentista</th>
+                    <th>Paciente</th>
+                    <th>Fecha Formulario</th>
+                    <th>Edad ese día</th>
+                    <th>Edad hoy</th>
+                    <th>Riesgo</th>
+                    <th>Estado Control</th>
+                    <th>Próx. Control Según Formulario</th>
+                    <th>Días Restantes</th>
+                    <th>Próx. Control Según Programa </th>
+                    <th>Días Restantes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for informe_formulario in object_list %}
+                <tr>
+                    <td>{{ informe_formulario.usuario }}</td>
+                    <td>{{ informe_formulario.paciente }}</td>
+                    <td>{{ informe_formulario.fecha_formulario }}</td>
+                    <td>{{ informe_formulario.edad_form }}</td>
+                    <td>{{ informe_formulario.paciente.edad_hoy }}</td>
+                    <td>{{ informe_formulario.riesgo }}</td>
+                    <td>{{ informe_formulario.estado_control }}</td>
+                    <td>{{ informe_formulario.fecha_prox_control }}</td>
+                    <td>
+                        {% if informe_formulario.tiempo_restante < 0 %}
+                          <button class="btn btn-danger">salió</button>
+                        {% elif informe_formulario.tiempo_restante <= 30 %}
+                          <button class="btn btn-warning">{{ informe_formulario.tiempo_restante }} días</button>
+                        {% else %}
+                          <button class="btn btn-success">{{ informe_formulario.tiempo_restante }} días</button>
+                        {% endif %}
+                      </td>
+                    <td>{{ informe_formulario.fecha_sale }}</td>
+                  
+                    <td>
+                        {% if informe_formulario.tiempo_restante_real < 0 %}
+                          <button class="btn btn-danger">salió</button>
+                        {% elif informe_formulario.tiempo_restante_real <= 30 %}
+                          <button class="btn btn-warning">{{ informe_formulario.tiempo_restante_real }} días</button>
+                        {% else %}
+                          <button class="btn btn-success">{{ informe_formulario.tiempo_restante_real }} días</button>
+                        {% endif %}
+                      </td>
+                      
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; Primera Página</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                {% endif %}
+        
+                <span class="current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                </span>
+        
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Última Página &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+
+
+
+
+
+</div>
+
+{% endblock %}

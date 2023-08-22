@@ -124,7 +124,7 @@ class InformeFormularios(models.Model):
     @property
     def tiempo_restante(self):
         hoy = datetime.now().date()
-        tiempo_restante = hoy - self.fecha_formulario
+        tiempo_restante = self.fecha_formulario - hoy
     
        
         dias_restantes = tiempo_restante
@@ -166,14 +166,14 @@ class InformeFormularios(models.Model):
     @property
     def tiempo_restante_real(self):
         hoy = datetime.now().date()
-        tiempo_restante = hoy - self.fecha_sale
+        tiempo_restante = self.fecha_sale - hoy
     
        
         dias_restantes = tiempo_restante
     
         
         
-        return dias_restantes.days
+        return int(dias_restantes.days)
       
     
     
