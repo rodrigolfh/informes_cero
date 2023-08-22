@@ -72,18 +72,22 @@ class Paciente(models.Model): #unopor cada paciente que aparece por primera vez 
         fecha_nacimiento = self.fecha_nac
     
         # Calcular la diferencia entre las fechas
-        edad = hoy - fecha_nacimiento
+        
+        try:
+            edad = hoy - fecha_nacimiento
     
         # Calcular años, meses y días
-        años = edad.days // 365
-        dias_restantes = edad.days % 365
-        meses = dias_restantes // 30
-        dias = dias_restantes % 30
+            años = edad.days // 365
+            dias_restantes = edad.days % 365
+            meses = dias_restantes // 30
+            dias = dias_restantes % 30
     
         # Formatear la edad como 'AAa, MMm, DDd'
-        edad_formateada = f"{años}a, {meses}m, {dias}d"
-        return edad_formateada
+            edad_formateada = f"{años}a, {meses}m, {dias}d"
+            return edad_formateada
     
+        except TypeError:
+            return "Faltan Datos"
     
     def __str__(self):
         
@@ -103,23 +107,26 @@ class InformeFormularios(models.Model):
     @property
     def edad_form(self):
         
-        fecha_form = self.fecha_formulario
-        fecha_nacimiento = self.paciente.fecha_nac
+        try:
+            fecha_form = self.fecha_formulario
+            fecha_nacimiento = self.paciente.fecha_nac
     
-        # Calcular la diferencia entre las fechas
-        edad = fecha_form - fecha_nacimiento
+            # Calcular la diferencia entre las fechas
+            edad = fecha_form - fecha_nacimiento
     
-        # Calcular años, meses y días
-        años = edad.days // 365
-        dias_restantes = edad.days % 365
-        meses = dias_restantes // 30
-        dias = dias_restantes % 30
+            # Calcular años, meses y días
+            años = edad.days // 365
+            dias_restantes = edad.days % 365
+            meses = dias_restantes // 30
+            dias = dias_restantes % 30
   
     
-        # Formatear la edad como 'AAa, MMm, DDd'
-        edad_formateada = f"{años}a, {meses}m, {dias}d"
+            # Formatear la edad como 'AAa, MMm, DDd'
+            edad_formateada = f"{años}a, {meses}m, {dias}d"
         
-        return edad_formateada
+            return edad_formateada
+        except TypeError:
+            return "Faltan datos"
     
     @property
     def tiempo_restante(self):
@@ -139,41 +146,51 @@ class InformeFormularios(models.Model):
         fecha_nacimiento = self.paciente.fecha_nac
     
         # Calcular la diferencia entre las fechas
-        edad_form = fecha_form - fecha_nacimiento
         
-        edad_años = edad_form.days // 365
-        print("edad_años", edad_años)
+        try:
+        
+            edad_form = fecha_form - fecha_nacimiento
+        
+            edad_años = edad_form.days // 365
+            print("edad_años", edad_años)
 
-        if edad_años < 3:
-            if self.riesgo == 'BAJO':
-                fecha_sale = self.fecha_formulario + relativedelta(months=12)
+            if edad_años < 3:
+                if self.riesgo == 'BAJO':
+                    fecha_sale = self.fecha_formulario + relativedelta(months=12)
                 
-                return fecha_sale
-            elif self.riesgo == 'ALTO':
-                fecha_sale = self.fecha_formulario + relativedelta(months=6)
+                    return fecha_sale
+                elif self.riesgo == 'ALTO':
+                    fecha_sale = self.fecha_formulario + relativedelta(months=6)
                
-                return fecha_sale
-        elif edad_años >= 3:
-            if self.riesgo == 'BAJO':
-                fecha_sale = self.fecha_formulario + relativedelta(months=12)
+                    return fecha_sale
+            elif edad_años >= 3:
+                if self.riesgo == 'BAJO':
+                    fecha_sale = self.fecha_formulario + relativedelta(months=12)
                 
-                return fecha_sale
-            elif self.riesgo == 'ALTO':
-                fecha_sale = self.fecha_formulario + relativedelta(months=4)
+                    return fecha_sale
+                elif self.riesgo == 'ALTO':
+                    fecha_sale = self.fecha_formulario + relativedelta(months=4)
                 
-                return fecha_sale
+                    return fecha_sale
+        except TypeError:
+            return "Faltan datos"
             
     @property
     def tiempo_restante_real(self):
         hoy = datetime.now().date()
-        tiempo_restante = self.fecha_sale - hoy
+        try:
+            
+            tiempo_restante = self.fecha_sale - hoy
     
        
-        dias_restantes = tiempo_restante
+            dias_restantes = tiempo_restante
     
         
         
-        return int(dias_restantes.days)
+            return int(dias_restantes.days)
+        
+        except TypeError:
+            return "Faltan Datos"
       
     
     
