@@ -3,6 +3,41 @@
 {% block body %}
 <div class= "mt-1 ml-1">
     <h1>InformeFormularios List</h1>
+
+    <form method="get" action="{% url 'formularios' %}">
+        <label for="cesfam_filter">Cesfam:</label>
+        <select name="cesfam_filter" id="cesfam_filter" onchange="this.form.submit()">
+            <option value="todos" {% if 'cesfam_filter' not in request.GET %}selected{% endif %}>Todos</option>
+            {% for cesfam in cesfams %}
+                <option value="{{ cesfam }}" {% if cesfam == request.GET.cesfam_filter %}selected{% endif %}>
+                    {{ cesfam }}
+                </option>
+            {% endfor %}
+        </select>
+        <noscript>
+            <button type="submit">Submit</button>
+        </noscript>
+    </form>
+    cesfam = cesfam_filter, usuario = dentista_filter, riesgo = riesgo_filter, completo = completitud_filter
+    <form method="get" action="{% url 'formularios' %}">
+        <label for="dentista_filter">Odontólog@:</label>
+        <select name="dentista_filter" id="dentista_filter" onchange="this.form.submit()">
+            <option value="todos" {% if 'dentista_filter' not in request.GET %}selected{% endif %}>Todos</option>
+            {% for dentista in dentistas %}
+                <option value="{{ dentista.rut }}" {% if dentista == request.GET.dentista_filter %}selected{% endif %}>
+                    {{ dentista }}
+                </option>
+            {% endfor %}
+        </select>
+        <noscript>
+            <button type="submit">Submit</button>
+        </noscript>
+    </form>
+    
+    
+    
+
+
     <div class="container">
         <div class="pagination">
             <span class="step-links">
@@ -99,5 +134,18 @@
 
 
 </div>
+
+
+<script>
+    const selectElement = document.getElementById("cesfam_filter");
+    const selectedOptionValue = "{{ request.GET.cesfam_filter }}";
+    for (let option of selectElement.options) {
+        if (option.value === selectedOptionValue) {
+            option.selected = true;
+            break;
+        }
+    }
+
+</script>
 
 {% endblock %}

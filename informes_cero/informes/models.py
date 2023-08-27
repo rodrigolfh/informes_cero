@@ -97,12 +97,16 @@ class InformeFormularios(models.Model):
     informe_formularios_id = models.AutoField(primary_key=True)
     usuario = models.ForeignKey(Usuario, on_delete=models.DO_NOTHING, null = False)
     paciente = models.ForeignKey(Paciente, on_delete=models.DO_NOTHING, null=False)
+    cesfam = models.ForeignKey(Establecimiento, on_delete=models.DO_NOTHING)
     fecha_formulario = models.DateField()
     riesgo_choices = [('ALTO', 'Riesgo Alto'),('BAJO', 'Riesgo Bajo')]
     riesgo = models.CharField(max_length=4, choices=riesgo_choices, null=True)
     estado_control_choices = [('ING', 'Ingreso'), ('PRI', 'Primer Control del Año')]
     estado_control = models.CharField(max_length=3, choices=estado_control_choices, null=True)
     fecha_prox_control = models.DateField(null = True)
+    completo = models.BooleanField(default=True)
+    campos_faltantes = models.CharField(max_length=64, default="")
+    
     
     @property
     def edad_form(self):
@@ -192,8 +196,7 @@ class InformeFormularios(models.Model):
         except TypeError:
             return "Faltan Datos"
       
-    
-    
+
     """
     ======
 
