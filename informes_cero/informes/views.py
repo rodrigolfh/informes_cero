@@ -155,6 +155,7 @@ class FormulariosBajoControlListView(ListView):
     template_name = 'informes/listview_formularios.html'
     paginate_by = 10
     
+    
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
         paciente_form = PacienteForm()
@@ -168,23 +169,25 @@ class FormulariosBajoControlListView(ListView):
         queryset = super().get_queryset()
         lookups = {}
         
-     
-        if self.request.GET.get('cesfam_filter') != None:
+        
+        if 'todos' != self.request.GET.get('cesfam_filter') != None:
             cesfam_codigo = self.request.GET.get('cesfam_filter')
             cesfam_buscado = Establecimiento.objects.get(establecimiento = cesfam_codigo)
             lookups['cesfam'] = cesfam_buscado.id
             
+            
         dentista_filter = self.request.GET.get('dentista_filter')
         
-        if dentista_filter != None:
+        if 'todos' != dentista_filter != None:
             lookups['usuario_id'] = dentista_filter
+        
             
         completo = self.request.GET.get('completitud_filter')
-        if completo != None:
+        if 'todos' != completo != None:
             lookups['completo'] = completo
             
         riesgo = self.request.GET.get('riesgo_filter')
-        if riesgo != None:
+        if 'todos' != riesgo != None:
             lookups['riesgo'] = riesgo
         
         print("lookups:::::::::::", lookups)
