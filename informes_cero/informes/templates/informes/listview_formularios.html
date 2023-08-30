@@ -6,7 +6,7 @@
 
     <form method="get" action="{% url 'formularios' %}">
         <label for="cesfam_filter">Cesfam:</label>
-        <select name="cesfam_filter" id="cesfam_filter" onchange="this.form.submit()">
+        <select name="cesfam_filter" id="cesfam_filter" >
             <option value="todos" {% if 'cesfam_filter' not in request.GET %}selected{% endif %}>Todos</option>
             {% for cesfam in cesfams %}
                 <option value="{{ cesfam }}" {% if cesfam == request.GET.cesfam_filter %}selected{% endif %}>
@@ -18,10 +18,10 @@
             <button type="submit">Submit</button>
         </noscript>
     </form>
-    cesfam = cesfam_filter, usuario = dentista_filter, riesgo = riesgo_filter, completo = completitud_filter
+
     <form method="get" action="{% url 'formularios' %}">
         <label for="dentista_filter">Odontólog@:</label>
-        <select name="dentista_filter" id="dentista_filter" onchange="this.form.submit()">
+        <select name="dentista_filter" id="dentista_filter" >
             <option value="todos" {% if 'dentista_filter' not in request.GET %}selected{% endif %}>Todos</option>
             {% for dentista in dentistas %}
                 <option value="{{ dentista.rut }}" {% if dentista == request.GET.dentista_filter %}selected{% endif %}>
@@ -29,13 +29,37 @@
                 </option>
             {% endfor %}
         </select>
-        <noscript>
+      
+    
+        <label for="riesgo_filter">Riesgo:</label>
+        <select name="riesgo_filter" id="riesgo_filter" >
+            <option value="todos" >Todos</option>
+           
+                <option value="ALTO"> ALTO
+                    
+                </option>
+                <option value="BAJO">BAJO
+                   
+                </option>
+        </select>
+   
+    
+    
+        <label for="completitud_filter">Completitud:</label>
+        <select name="completitud_filter" id="completitud_filter" >
+            <option value="todos" >Todos</option>
+           
+                <option value=0> Incompleto
+                    
+                </option>
+                <option value=1> Completo
+                   
+                </option>
+        </select>
+       
             <button type="submit">Submit</button>
-        </noscript>
+        
     </form>
-    
-    
-    
 
 
     <div class="container">
