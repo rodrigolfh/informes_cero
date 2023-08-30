@@ -755,6 +755,7 @@ def ingreso(archivo):
         riesgo_6_a_9 = fila[riesgos[1]]
         riesgo_10_a_19 = fila[riesgos[2]]
         instancia_paciente = ''
+        completo = True
         
         
         
@@ -765,11 +766,17 @@ def ingreso(archivo):
             riesgo = riesgo_6_a_9
         elif not pd.isna(riesgo_10_a_19):
             riesgo = riesgo_10_a_19
+        else:
+            completo = False
             
         if 'alto' in riesgo.lower():
             riesgo = 'ALTO'
         elif 'bajo' in riesgo.lower():
             riesgo = 'BAJO'
+            
+        else:
+            completo = False   
+        
         """
                 for riesgo in riesgos:
             print("riesgo:", riesgo)
@@ -790,12 +797,14 @@ def ingreso(archivo):
             estado_control = 'PRI'
         elif estado_control.startswith('Ing'):
             estado_control = 'ING'
+        else:
+            completo = False
             
             
             
         for fecha in headers_fecha_prox_control:
             if pd.isna(fila[fecha]):
-                pass
+                completo = False
             else:
                 
                 fecha_prox_control = string_a_fecha_hora(fila[fecha])
@@ -807,6 +816,8 @@ def ingreso(archivo):
         if not fila['RUT']:
             print(f"Paciente {fila['PACIENTE']} no tiene rut, no será agregado a la base de datos")
             pass
+        
+        ###########3 inventar un rut y agregarlo
         
             
         elif not Paciente.objects.filter(rut_sin_dv=fila['RUT']): #si el paciente no existe, se agrega

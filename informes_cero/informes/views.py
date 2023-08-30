@@ -166,88 +166,34 @@ class FormulariosBajoControlListView(ListView):
     
     def get_queryset(self):
         queryset = super().get_queryset()
+        lookups = {}
         
-        ### Primero filtrar los GET que sean 'todos', para que no se busque filtrar por un cesfam 'todos', que obviamente no existe
-        cesfam_filter = self.request.GET.get('cesfam_filter')
-        if cesfam_filter == 'todos':
-            cesfam_filter = False
-        else: 
-            cesfam_filter = Establecimiento.objects.get(establecimiento = cesfam_filter)
+     
+        if self.request.GET.get('cesfam_filter') != None:
+            cesfam_codigo = self.request.GET.get('cesfam_filter')
+            cesfam_buscado = Establecimiento.objects.get(establecimiento = cesfam_codigo)
+            lookups['cesfam'] = cesfam_buscado.id
             
         dentista_filter = self.request.GET.get('dentista_filter')
+        
+        if dentista_filter != None:
+            lookups['usuario_id'] = dentista_filter
             
-        if dentista_filter == 'todos':
-            dentista_filter = False
-           
-        completitud_filter = self.request.GET.get('completitud_filter')
-        if completitud_filter == 'todos':
-            completitud_filter == False
+        completo = self.request.GET.get('completitud_filter')
+        if completo != None:
+            lookups['completo'] = completo
+            
+        riesgo = self.request.GET.get('riesgo_filter')
+        if riesgo != None:
+            lookups['riesgo'] = riesgo
         
+        print("lookups:::::::::::", lookups)
         
-        riesgo_filter = self.request.GET.get('riesgo_filter')
-        if riesgo_filter == 'todos':
-            completitud_filter = False
+        queryset = InformeFormularios.objects.filter(**lookups)
+        print('queryset:::::::::::::', queryset)
         
-        ### Ahora, lógica condicional para determinar el queryset de acuerdo a lo que venga en el GET
-        
-               
-        if cesfam_filter and dentista_filter and completitud_filter and riesgo_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, usuario = dentista_filter, riesgo = riesgo_filter, completo = completitud_filter)
-            return queryset
-        
-        if cesfam_filter and dentista_filter and completitud_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, usuario = dentista_filter, completo = completitud_filter)
-            return queryset
-        
-        elif cesfam_filter and dentista_filter and riesgo_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, usuario = dentista_filter, riesgo = riesgo_filter)
-            return queryset
-        elif cesfam_filter and completitud_filter and riesgo_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, riesgo = riesgo_filter, completo = completitud_filter)
-            return queryset
-        
-        elif dentista_filter and completitud_filter and riesgo_filter:
-            queryset = queryset.filter(usuario = dentista_filter, riesgo = riesgo_filter, completo = completitud_filter)
-            return queryset
-        
-        elif cesfam_filter and dentista_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, usuario = dentista_filter)
-            return queryset
-        
-        elif cesfam_filter and completitud_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, completo = completitud_filter)
-            return queryset
-        
-        elif dentista_filter and completitud_filter:
-            queryset = queryset.filter(usuario = dentista_filter, completo = completitud_filter)
-            return queryset
-        
-        elif cesfam_filter and riesgo_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter, riesgo = riesgo_filter)
-            return queryset
-        
-        elif completitud_filter and riesgo_filter:
-            queryset = queryset.filter(riesgo = riesgo_filter, completo = completitud_filter)
-            return queryset
-        
-        elif dentista_filter and riesgo_filter:
-            queryset = queryset.filter(usuario = dentista_filter, riesgo = riesgo_filter)
-            return queryset
-        
-        
-        elif cesfam_filter:
-            queryset = queryset.filter(cesfam = cesfam_filter)
-            return queryset
-        
-        elif completitud_filter:
-            queryset = queryset.filter(completo = completitud_filter)
-            return queryset
-        
-        elif dentista_filter:
-            queryset = queryset.filter(usuario = dentista_filter)
-            return queryset
-        else:
-            return queryset
+        return queryset
+   
         
         return queryset
         
