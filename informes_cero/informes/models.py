@@ -106,6 +106,7 @@ class InformeFormularios(models.Model):
     fecha_prox_control = models.DateField(null = True)
     completo = models.BooleanField(default=True)
     campos_faltantes = models.CharField(max_length=64, default="")
+    prox_control_segun_riesgo = models.DateField(null = True)
     
     
     @property
@@ -161,6 +162,7 @@ class InformeFormularios(models.Model):
             if edad_años < 3:
                 if self.riesgo == 'BAJO':
                     fecha_sale = self.fecha_formulario + relativedelta(months=12)
+                    
                 
                     return fecha_sale
                 elif self.riesgo == 'ALTO':
@@ -216,15 +218,6 @@ Corresponde a los niños(as) bajo control que no acudieron a su control con odon
         return f"Odontólog@: {self.usuario}, Paciente: {self.paciente}, Fecha Formulario: {self.fecha_formulario}"
     
     
-    
-#class RemA09Detallado(models.Model):
-#    paciente = models.ForeignKey(Paciente) #en este xlsx viene el rut con DV,sin puntos ni guión
-#    ceo = 0
-    
-    #paciente (fk)
-    #mes rem a09
-    #cesfam
-    
-    
+
     
     

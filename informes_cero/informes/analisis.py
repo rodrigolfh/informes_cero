@@ -867,3 +867,24 @@ def ingreso(archivo):
     
     
     return True
+
+### Funciones para actualizar asincrónicamente las fechas de salida del bajo control.
+
+def actualizar_fecha_prox_control_instancia(instancia):
+    if instancia.fecha_sale != "Faltan datos":
+   
+        instancia.prox_control_segun_riesgo = instancia.fecha_sale
+        instancia.save()
+    else:
+        instancia.completo = False
+        instancia.save()
+    
+def actualizar_fecha_prox_control_base():
+    instancias = InformeFormularios.objects.all()
+    for instancia in instancias:
+        actualizar_fecha_prox_control_instancia(instancia)
+        
+      
+        
+       
+    

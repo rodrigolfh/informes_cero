@@ -190,10 +190,11 @@ class FormulariosBajoControlListView(ListView):
         if 'todos' != riesgo != None:
             lookups['riesgo'] = riesgo
         
-        print("lookups:::::::::::", lookups)
+    
+                
         
-        queryset = InformeFormularios.objects.filter(**lookups)
-        print('queryset:::::::::::::', queryset)
+        queryset = InformeFormularios.objects.filter(**lookups).order_by()
+       
         
         return queryset
    
