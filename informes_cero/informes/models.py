@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+
 
 
 
@@ -107,7 +107,8 @@ class InformeFormularios(models.Model):
     completo = models.BooleanField(default=True)
     campos_faltantes = models.CharField(max_length=64, default="")
     prox_control_segun_riesgo = models.DateField(null = True)
-    
+    fecha_sale = models.DateField(null=True)
+    vigente = models.BooleanField(default=True)
     
     @property
     def edad_form(self):
@@ -145,41 +146,7 @@ class InformeFormularios(models.Model):
         
         return dias_restantes.days
     
-    @property
-    def fecha_sale(self):
-        fecha_form = self.fecha_formulario
-        fecha_nacimiento = self.paciente.fecha_nac
-    
-        # Calcular la diferencia entre las fechas
-        
-        try:
-        
-            edad_form = fecha_form - fecha_nacimiento
-        
-            edad_años = edad_form.days // 365
-            print("edad_años", edad_años)
 
-            if edad_años < 3:
-                if self.riesgo == 'BAJO':
-                    fecha_sale = self.fecha_formulario + relativedelta(months=12)
-                    
-                
-                    return fecha_sale
-                elif self.riesgo == 'ALTO':
-                    fecha_sale = self.fecha_formulario + relativedelta(months=6)
-               
-                    return fecha_sale
-            elif edad_años >= 3:
-                if self.riesgo == 'BAJO':
-                    fecha_sale = self.fecha_formulario + relativedelta(months=12)
-                
-                    return fecha_sale
-                elif self.riesgo == 'ALTO':
-                    fecha_sale = self.fecha_formulario + relativedelta(months=4)
-                
-                    return fecha_sale
-        except TypeError:
-            return "Faltan datos"
             
     @property
     def tiempo_restante_real(self):

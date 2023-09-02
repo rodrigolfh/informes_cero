@@ -190,6 +190,11 @@ class FormulariosBajoControlListView(ListView):
         if 'todos' != riesgo != None:
             lookups['riesgo'] = riesgo
         
+        vigencia = self.request.GET.get('vigencia_filter')
+        if 'todos' != vigencia != None:
+            lookups['vigente'] = vigencia
+            
+        
     
                 
         

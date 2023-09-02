@@ -6,6 +6,8 @@ from .models import Paciente, Usuario, InformeFormularios, Establecimiento
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist #para usar el doesnotexist como excepcion con try-except
+from dateutil.relativedelta import relativedelta
+
 """
 registro=pd.read_excel('archivos/Informe_Formularios_RAYEN_4.xlsx', header=16) #los headers de las columnas comienzan en la fila 17
 
@@ -878,12 +880,59 @@ def actualizar_fecha_prox_control_instancia(instancia):
     else:
         instancia.completo = False
         instancia.save()
+        
+
+def actualizar_fecha_sale(instancia):
+
+    fecha_form = instancia.fecha_formulario
+    fecha_nacimiento = instancia.paciente.fecha_nac
+    
+        # Calcular la diferencia entre las fechas
+        
+    try:
+        
+        edad_form = fecha_form - fecha_nacimiento
+        
+        edad_años = edad_form.days // 365
+        print("edad_años", edad_años)
+
+        if edad_años < 3:
+            if instancia.riesgo == 'BAJO':
+                fecha_sale = instancia.fecha_formulario + relativedelta(months=12)
+      
+            elif instancia.riesgo == 'ALTO':
+                fecha_sale = instancia.fecha_formulario + relativedelta(months=6)
+               
+        elif edad_años >= 3:
+            if instancia.riesgo == 'BAJO':
+                fecha_sale = instancia.fecha_formulario + relativedelta(months=12)
+                
+            elif instancia.riesgo == 'ALTO':
+                fecha_sale = instancia.fecha_formulario + relativedelta(months=4)
+                
+        instancia.fecha_sale = fecha_sale
+        
+        if fecha_sale >= datetime.now().date():
+            instancia.vigente = True
+        
+        else:
+            instancia.vigente = False
+              
+        instancia.save()
+         
+    except TypeError:
+        return "Faltan datos"
+        
+        
     
 def actualizar_fecha_prox_control_base():
     instancias = InformeFormularios.objects.all()
     for instancia in instancias:
         actualizar_fecha_prox_control_instancia(instancia)
+        actualizar_fecha_sale(instancia)
         
+        
+
       
         
        
