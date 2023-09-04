@@ -7,19 +7,15 @@
     <form method="get" action="{% url 'formularios' %}">
         <label for="cesfam_filter">Cesfam:</label>
         <select name="cesfam_filter" id="cesfam_filter" >
-            <option value="todos" {% if 'cesfam_filter' not in request.GET %}selected{% endif %}>Todos</option>
+            <option value="todos" >Todos</option>
             {% for cesfam in cesfams %}
                 <option value="{{ cesfam }}" {% if cesfam == request.GET.cesfam_filter %}selected{% endif %}>
                     {{ cesfam }}
                 </option>
             {% endfor %}
         </select>
-        <noscript>
-            <button type="submit">Submit</button>
-        </noscript>
-    </form>
+  
 
-    <form method="get" action="{% url 'formularios' %}">
         <label for="dentista_filter">Odontólog@:</label>
         <select name="dentista_filter" id="dentista_filter" >
             <option value="todos" {% if 'dentista_filter' not in request.GET %}selected{% endif %}>Todos</option>
@@ -56,10 +52,51 @@
                    
                 </option>
         </select>
+        <label for="vigencia_filter">Vigencia:</label>
+        <select name="vigencia_filter" id="vigencia_filter" >
+            <option value="todos" >Todos</option>
+           
+                <option value=0> Vencido
+                    
+                </option>
+                <option value=1> Vigente
+                   
+                </option>
+        </select>
        
-            <button type="submit">Submit</button>
+            <button type="submit">Filtrar</button>
         
     </form>
+    {% if request.GET %}
+    <p>Mostrando:
+        {% if 'dentista_filter' in request.GET %}
+            Dentista "{{ request.GET.dentista_filter }}",  
+        {% endif %}
+
+        {% if 'cesfam_filter' in request.GET %}
+            Cesfam "{{ request.GET.cesfam_filter }}",  
+        {% endif %}
+
+        {% if 'riesgo_filter' in request.GET %}
+            Riesgo "{{ request.GET.riesgo_filter }}",  
+        {% endif %}
+
+        {% if 'completitud_filter' in request.GET %}
+    {% if request.GET.completitud_filter == '0' %}
+        Sólo registros incompletos.
+    {% elif request.GET.completitud_filter == '1' %}
+        Sólo registros completos.
+    {% endif %}
+
+    {% if 'vigencia_filter' in request.GET %}
+        {% if request.GET.vigencia_filter == '0' %}
+        Sólo registros fuera de Bajo Control.
+        {% elif request.GET.vigencia_filter == '1' %}
+        Sólo registros dentro de Bajo Control.
+    {% endif %} {% endif %}
+{% endif %}
+    </p>
+    {% endif %}
 
 
     <div class="container">

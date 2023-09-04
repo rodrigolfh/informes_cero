@@ -8,176 +8,13 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist #para usar el doesnotexist como excepcion con try-except
 from dateutil.relativedelta import relativedelta
 
-"""
-registro=pd.read_excel('archivos/Informe_Formularios_RAYEN_4.xlsx', header=16) #los headers de las columnas comienzan en la fila 17
 
-registro.head() #las primeras 5 filas
-registro.tail() #las últimas 5 filas
-registro.head(15) #las primeras 5 filas
-headers = registro.loc[0] #fila 1
-headers.to_list() # como lista
-headers.to_string() #como string
-diccionario = {'dato1' : 11}
-df = pd.DataFrame(diccionario, index = ["day1", "day2", "day3"]) #índices con nombres. esto se usa al pasar un dict a un dataframe.
-registro.loc["nombre de columna"] #serie por nombre de columna
-
-"""
-
-
-
-headers = [
-    'SERVICIO SALUD',
-    'ESTABLECIMIENTO',
-    'RUT',
-    'DV',
-    'CODIGO FAMILIA',
-    'NUMERO DE FICHA RAYEN',
-    'NUMERO DE FICHA CODIGO ANTIGUO',
-    'PACIENTE',
-    'FECHA DE NACIMIENTO',
-    'EDAD PACIENTE',
-    'AÑO APLICACIÓN FORMULARIO',
-    'MES APLICACIÓN FORMULARIO',
-    'DÍAS APLICACIÓN FORMULARIO',
-    'PUEBLO ORIGINARIO',
-    'ALERTAS ADMINISTRATIVAS',
-    'NACIONALIDAD',
-    'SEXO',
-    'SECTOR INSCRIPCION',
-    'SECTOR CITA',
-    'DIRECCIÓN',
-    'COMUNA',
-    'TELEFONO 1',
-    'TELEFONO 2',
-    'PREVISION',
-    'CONVENIO',
-    'SITUACION',
-    'ESTADO',
-    'FUNCIONARIO PASIVADOR',
-    'ATEN ID',
-    'FECHA ATENCION',
-    'FECHA FORMULARIO',
-    'FUNCIONARIO',
-    'INSTRUMENTO',
-    'ESTABLECIMIENTO INSCRIPCION',
-    'FORMULARIO',
-    'FUNCIONARIOS FORMULARIO',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-    '13',
-    '14',
-    '15',
-    '16',
-    '17',
-    '18',
-    '19',
-    '20',
-    '21',
-    '22',
-    '23',
-    '24',
-    '25',
-    '26',
-    '27',
-    '28',
-    '29',
-    '30',
-    '31',
-    '32',
-    '33',
-    '34',
-    '35',
-    '36',
-    '37',
-    '38',
-    '39',
-    '40',
-    '41',
-    '42',
-    '43',
-    '44',
-    '45',
-    '46',
-    '47',
-    '48',
-    '49',
-    '50',
-    '51',
-    '52',
-    '53'
-]
-
-preguntas = {
-    '1': '¿EL NIÑO(A) PRESENTA UNA CONDICIÓN QUE DISMINUYA SU FLUJO SALIVAL (ENFERMEDADES, CONSUMO DE FÁRMACOS, ETC)?',
-    '2': '¿EL NIÑO(A) PRESENTA UNA CONDICIÓN QUE DISMINUYA SU FLUJO SALIVAL? DE 6 A 9 AÑOS',
-    '3': '¿EL O LA ADOLESCENTE PRESENTA UNA CONDICIÓN QUE DI',
-    '4': '¿EL NIÑO(A) PRESENTA SITUACIÓN DE DISCAPACIDAD?',
-    '5': '¿EL NIÑO(A) PRESENTA SITUACIÓN DE DISCAPACIDAD? DE 6 A 9 AÑOS',
-    '6': '¿EL O LA ADOLESCENTE PRESENTA SITUACIÓN DE DISCAPA',
-    '7': '¿EL NIÑO PRESENTA  LESIONES DE CARIES CAVITADAS O',
-    '8': '¿EL NIÑO PRESENTA  LESIONES DE CARIES O COPD &AMP;GT;0?',
-    '9': '¿EL/LA ADOLESCENTE PRESENTA  MANCHAS BLANCAS, COPD',
-    '10': '¿CUÁL ES EL ESTADO DE LAS ENCÍAS DEL NIÑ(A)? DE 0 A 5 AÑOS',
-    '11': '¿CUÁL ES EL ESTADO DE LAS ENCÍAS DEL NIÑ(A)? DE 6 A 9 AÑOS',
-    '12': '¿CUÁL ES EL ESTADO DE LAS ENCÍAS DEL/LA ADOLESCENT',
-    '13': 'LOS PADRES Y/O CUIDADORES, ¿LE LAVAN LOS DIENTES AL NIÑO(A)? DE 0 A 5 AÑOS',
-    '14': 'LOS PADRES Y/O CUIDADORES, ¿SUPERVISAN EL LAVADO D',
-    '15': '¿CUÁNTAS VECES AL DÍA SE LAVA LOS DIENTES EL/LA AD',
-    '16': '¿CUÁNTAS VECES AL DÍA LE LAVAN LOS DIENTES AL NIÑO (A) EN LA CASA? DE 0 A 5 AÑOS',
-    '17': '¿CUÁNTAS VECES AL DÍA LE LAVAN LOS DIENTES AL NIÑO (A) EN LA CASA? DE 6 A 9 AÑOS',
-    '18': '¿EL/LA ADOLESCENTE, SE LAVA LOS DIENTES ANTES DE I',
-    '19': '¿EL NIÑO O NIÑA, SE LAVA LOS DIENTES ANTES DE IR A DORMIR? DE 0 A 5 AÑOS',
-    '20': '¿EL NIÑO O NIÑA, SE LAVA LOS DIENTES ANTES DE IR A DORMIR? DE 6 A 9 AÑOS',
-    '21': '¿CUÁNTAS VECES AL DÍA EL NIÑO(A) INGIERE ALIMENTOS Y/O LÍQUIDOS AZUCARADOS? DE 0 A 2 AÑOS',
-    '22': '¿CUÁNTAS VECES AL DÍA EL NIÑO(A) INGIERE ALIMENTOS Y/O LÍQUIDOS AZUCARADOS? DE 3 A 5 AÑOS',
-    '23': '¿CUÁNTAS VECES AL DÍA EL NIÑO(A) INGIERE ALIMENTOS',
-    '24': '¿CUÁNTAS VECES AL DÍA EL/LA ADOLESCENTE INGIERE AL',
-    '25': '¿EN QUÉ MOMENTO EL NIÑO(A) REALIZA LA INGESTA DE ALIMENTOS Y/O LÍQUIDOS AZUCARADOS? DE 0 A 5 AÑOS',
-    '26': '¿CUÁNTAS VECES AL DÍA EL NIÑO(A) INGIERE ALIMENTOS',
-    '27': '¿EN QUÉ MOMENTO EL/LA ADOLESCENTE REALIZA LA INGES',
-    '28': 'SI EL NIÑO(A) TOMA LIQUIDOS AZUCARADOS EN MAMADERA',
-    '29': '¿EN QUÉ MOMENTO EL NIÑO(A) REALIZA LA INGESTA DE ALIMENTOS Y/O LÍQUIDOS AZUCARADOS? DE 6 A 9 AÑOS',
-    '30': '¿EL ADOLESCENTE CONSUME ALIMENTOS O LÍQUIDOS AZUCA',
-    '31': 'SI EL NIÑO(A) INGIERE LÍQUIDOS Y/O LIMENTOS DESPUÉ',
-    '32': '¿UTILIZA EL NIÑO O NIÑA PASTA DE DIENTES CON 1.000',
-    '33': '¿UTILIZA EL NIÑO O NIÑA PASTA DE DIENTES CON 1.000-1.500 PPM DE  FLÚOR? DE 6 A 9',
-    '34': '¿UTILIZA EL/LA ADOLESCENTE PASTA DE DIENTES CON 1.',
-    '35': '¿CUÁL CREE QUE ES LA MOTIVACIÓN DE LOS PADRES/CUIDADORES EN EL CUIDADO ORAL DEL NIÑO(A)? DE 0 A 5 AÑOS',
-    '36': 'LUEGO DE LAS PREGUNTAS ANTERIORES, SEGÚN USTED (DE',
-    '37': 'LUEGO DE LAS PREGUNTAS ANTERIORES, SEGÚN USTED (DE',
-    '38': '¿EL NIÑO(A) SE SUCCIONA EL DEDO DE MANERA PERSISTENTE? DE 0 A 5 AÑOS',
-    '39': '¿EL NIÑO(A) SE SUCCIONA EL DEDO DE MANERA PERSISTENTE? DE 6 A 9 AÑOS',
-    '40': '¿EL/LA ADOLESCENTE PRESENTA MALOS HÁBITOS DE ONICO',
-    '41': '¿EL NIÑO(A) OCUPA CHUPETE ENTRETENCIÓN, MAMADERA U OTRO OBJETO? DE 0 A 5 AÑOS',
-    '42': '¿EL NIÑO(A) OCUPA CHUPETE ENTRETENCIÓN, MAMADERA U OTRO OBJETO? DE 6 A 9 AÑOS',
-    '43': '¿EL/LA ADOLESCENTE MANIFIESTA CONSUMO DE TABACO, A',
-    '44': '¿EL NIÑO(A) PRESENTA MAL OCLUSIONES? DE 0 A 5 AÑOS',
-    '45': '¿EL NIÑO(A) PRESENTA MAL OCLUSIONES? DE 6 A 9 AÑOS',
-    '46': '¿EL/LA ADOLESCENTE PRESENTA MAL OCLUSIONES?',
-    '47': 'RESULTADO EVALUACIÓN DE RIESGO DE 0 A 5 AÑOS',
-    '48': 'RESULTADO EVALUACIÓN DE RIESGO DE 6 A 9 AÑOS',
-    '49': 'RESULTADO EVALUACIÓN DE RIESGO DE 10 A 19 AÑOS',
-    '50': 'FECHA PRÓXIMO CONTROL DE 0 A 5 AÑOS',
-    '51': 'RESULTADO EVALUACIÓN DE RIESGO FECHA PROXIMO CONTROL DE 6 A 9 ÑOS',
-    '52': 'FECHA PRÓXIMO CONTROL DE 10 A 19 AÑOS',
-    '53': 'ESTADO'
-}
 
 
 # LISTO: CORROBORAR QUE EL ARCHIVO SEA XLSX (doble, antes de subir en el view y después de subir en la función 'xslx')
 # LISTO: Corroborar comuna
 
-# TODO:  QUE TENGA EL NOMBRE DE UN CESFAM DE LA LISTA (PEDIRLE A CRISTIAN OTRAS PLANILLAS)
+# LISTO  QUE TENGA EL NOMBRE DE UN CESFAM DE LA LISTA (PEDIRLE A CRISTIAN OTRAS PLANILLAS)
 
 # LISTO: FECHA HASTA - DESDE = UN AÑO, CORROBORA QUE SEA UN INFORME DE UN AÑO Y UN MES CORRIDO 
 
@@ -190,27 +27,6 @@ preguntas = {
 
 
 archivo = './archivos/Informe_Formularios_RAYEN_4.xlsx'
-"""
-
-class CargarInformeFormularios(BaseCommand):
-    help = 'Load data from a pandas DataFrame into the SQLite database'
-
-    def handle(self, *args, **kwargs):
-
-        df = pd.read_csv('your_dataframe.csv')
-
-        # Convert DataFrame rows to Django objects and save them to the database
-        for _, row in df.iterrows():
-            obj = Infor(
-                column1=row['column1'],
-                column2=row['column2'],
-                # Add other fields as needed
-            )
-            obj.save()
-
-        self.stdout.write(self.style.SUCCESS('Data loaded successfully.'))
-"""
-
 
 
 class Validar(): 
@@ -549,95 +365,6 @@ def generar_contexto_validacion(dataframe):
     contexto['hecho'] = True
     return contexto
 
-columnas_referencia_c = ['SERVI',
- 'ESTAB',
- 'RUT',
- 'DV',
- 'CODIG',
- 'NUMER',
- 'NUMER',
- 'PACIE',
- 'FECHA',
- 'EDAD ',
- 'AÑO A',
- 'MES A',
- 'DÍAS ',
- 'PUEBL',
- 'ALERT',
- 'NACIO',
- 'SEXO',
- 'SECTO',
- 'SECTO',
- 'DIREC',
- 'COMUN',
- 'TELEF',
- 'TELEF',
- 'PREVI',
- 'CONVE',
- 'SITUA',
- 'ESTAD',
- 'FUNCI',
- 'ATEN ',
- 'FECHA',
- 'FECHA',
- 'FUNCI',
- 'INSTR',
- 'ESTAB',
- 'FORMU',
- 'FUNCI',
- '1.- ¿',
- '2.- ¿',
- '3.- ¿',
- '4.- ¿',
- '5.- ¿',
- '6.- ¿',
- '7.- ¿',
- '8.- ¿',
- '9.- ¿',
- '10.- ',
- '11.- ',
- '12.- ',
- '13.- ',
- '14.- ',
- '15.- ',
- '16.- ',
- '17.- ',
- '18.- ',
- '19.- ',
- '20.- ',
- '21.- ',
- '22.- ',
- '23.- ',
- '24.- ',
- '25.- ',
- '26.- ',
- '27.- ',
- '28.- ',
- '29.- ',
- '30.- ',
- '31.- ',
- '32.- ',
- '33.- ',
- '34.- ',
- '35.- ',
- '36.- ',
- '37.- ',
- '38.- ',
- '39.- ',
- '40.- ',
- '41.- ',
- '42.- ',
- '43.- ',
- '44.- ',
- '45.- ',
- '46.- ',
- '47.- ',
- '48.- ',
- '49.- ',
- '50.- ',
- '51.- ',
- '52.- ',
- '53.- ']
 
 
 def string_a_fecha(fecha_string):
@@ -743,7 +470,7 @@ def ingreso(archivo):
 
     informe_formularios_df = pd.read_excel(archivo, header=16, usecols=columnas)
     for index, fila in informe_formularios_df.iterrows():
-        rut_sin_dv=fila['RUT'],
+        rut_sin_dv=int(fila['RUT']),
         dv =fila['DV'],
         nombre = fila['PACIENTE'],
         fecha_nac = string_a_fecha(fila['FECHA DE NACIMIENTO']), #string a formato datefield
@@ -876,10 +603,10 @@ def actualizar_fecha_prox_control_instancia(instancia):
     if instancia.fecha_sale != "Faltan datos":
    
         instancia.prox_control_segun_riesgo = instancia.fecha_sale
-        instancia.save()
+       
     else:
         instancia.completo = False
-        instancia.save()
+        
         
 
 def actualizar_fecha_sale(instancia):
@@ -888,7 +615,7 @@ def actualizar_fecha_sale(instancia):
     fecha_nacimiento = instancia.paciente.fecha_nac
     
         # Calcular la diferencia entre las fechas
-        
+       
     try:
         
         edad_form = fecha_form - fecha_nacimiento
@@ -918,19 +645,51 @@ def actualizar_fecha_sale(instancia):
         else:
             instancia.vigente = False
               
-        instancia.save()
+        
          
     except TypeError:
-        return "Faltan datos"
-        
+        instancia.fecha_sale = instancia.fecha_prox_control
+       
+    
+
+def actualizar_tiempo_restante_real(instancia):
+    hoy = datetime.now().date()
+    try:
+            
+        tiempo_restante = instancia.fecha_sale - hoy
+
         
     
-def actualizar_fecha_prox_control_base():
+    except TypeError:
+       
+        instancia.fecha_sale = instancia.prox_control_segun_riesgo
+        tiempo_restante = instancia.fecha_sale - hoy
+        
+    
+    instancia.tiempo_restante_real = int(tiempo_restante.days)
+        
+def eliminar_mayores_de_9(instancia):
+    try:
+        if instancia.edad_años > 9:
+            instancia.delete()
+            print("instancia borrada")
+        
+    except TypeError:
+        pass    
+
+
+
+        
+    
+def actualizar_db():
     instancias = InformeFormularios.objects.all()
     for instancia in instancias:
         actualizar_fecha_prox_control_instancia(instancia)
         actualizar_fecha_sale(instancia)
+        actualizar_tiempo_restante_real(instancia)
         
+        instancia.save()
+        eliminar_mayores_de_9(instancia)
         
 
       

@@ -109,6 +109,7 @@ class InformeFormularios(models.Model):
     prox_control_segun_riesgo = models.DateField(null = True)
     fecha_sale = models.DateField(null=True)
     vigente = models.BooleanField(default=True)
+    tiempo_restante_real = models.IntegerField(null=True)
     
     @property
     def edad_form(self):
@@ -134,9 +135,27 @@ class InformeFormularios(models.Model):
         except TypeError:
             return "Faltan datos"
     
+    @property    
+    def edad_años(self):
+       
+        try:
+            fecha_form = self.fecha_formulario
+            fecha_nacimiento = self.paciente.fecha_nac
+    
+            # Calcular la diferencia entre las fechas
+            edad = fecha_form - fecha_nacimiento
+    
+            # Calcular años
+            años = edad.days // 365
+            return años
+        except TypeError:
+            pass
+        
     @property
     def tiempo_restante(self):
         hoy = datetime.now().date()
+        
+        
         tiempo_restante = self.fecha_formulario - hoy
     
        
@@ -148,23 +167,6 @@ class InformeFormularios(models.Model):
     
 
             
-    @property
-    def tiempo_restante_real(self):
-        hoy = datetime.now().date()
-        try:
-            
-            tiempo_restante = self.fecha_sale - hoy
-    
-       
-            dias_restantes = tiempo_restante
-    
-        
-        
-            return int(dias_restantes.days)
-        
-        except TypeError:
-            return "Faltan Datos"
-      
 
     """
     ======

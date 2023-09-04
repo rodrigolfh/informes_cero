@@ -153,7 +153,8 @@ class ValidarArchivoDetailView(DetailView):
 class FormulariosBajoControlListView(ListView):
     model = InformeFormularios
     template_name = 'informes/listview_formularios.html'
-    paginate_by = 10
+    #paginate_by = 10
+    
     
     
     def get_context_data(self, **kwargs: Any):
@@ -201,10 +202,9 @@ class FormulariosBajoControlListView(ListView):
         queryset = InformeFormularios.objects.filter(**lookups).order_by()
        
         
-        return queryset
+        return queryset.order_by('-tiempo_restante_real')
    
-        
-        return queryset
+       
         
         
     
